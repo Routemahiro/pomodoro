@@ -3,6 +3,9 @@ from model.database import DBHandler
 from utils.text_generator import TextGenerator
 import threading
 import time
+import asyncio
+import aiohttp
+import datetime
 
 class Timer:
     def __init__(self, interval, callback):
@@ -91,3 +94,47 @@ class PomodoroTimer:
             # Call the break callback with the AI comment
             self.break_callback(ai_comment)
         self.work_mode = not self.work_mode
+
+
+    def update_work_activity(self):
+        if not self.work_mode:
+            return
+
+        # Get the current window name
+        window_name = self.get_window_name()
+
+        # Estimate the activity genre
+        activity_genre = self.estimate_activity_genre(window_name)
+
+        # Get the current time
+        current_time = datetime.now()
+
+        # Add the window activity to the database
+        self.db_handler.add_window_activity(self.session_id, current_time, window_name, activity_genre)
+
+    def get_window_name(self):
+        # Implement the method to get the current window name
+        pass
+
+    def estimate_activity_genre(self, window_name):
+        # Implement the method to estimate the activity genre from the window name
+        pass
+
+    async def estimate_activity_genre(self, window_name):
+        # Create a message for the AI
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": f"What kind of activity do you think the user is doing based on this window name? {window_name}"}
+        ]
+
+        # Send a request to the AI
+        async with aiohttp.ClientSession() as session:
+            async with session.post('https://api.openai.com/v1/engines/davinci/completions', json={
+                'messages': messages,
+                'max_tokens': 60
+            }) as response:
+                result = await response.json()
+                return result['choices'][0]['message']['content']
+            
+        # 非同期処理によって、AIにジャンルの推定をしてもらう
+        activity_genre = asyncio.run(self.estimate_activity_genre(window_name))

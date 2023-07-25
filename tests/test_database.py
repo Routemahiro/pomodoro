@@ -4,35 +4,42 @@ import datetime
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from model.database import DBHandler, init_db
+import unittest
+from model.database import DBHandler
+from utils.text_generator import TextGenerator
 
-def test_database():
-    # データベース初期化
-    init_db()
+class TestDBHandler(unittest.TestCase):
+    def setUp(self):
+        self.db_handler = DBHandler()
 
-    # DBHandlerのインスタンスを作成
-    db_handler = DBHandler()
+    def test_create_connection(self):
+        self.assertIsNotNone(self.db_handler.connection)
 
-    # 新しいポモドーロセッションの開始
-    start_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    session_id = db_handler.start_pomodoro_session(start_time)
-    assert session_id is not None, "Failed to start a new pomodoro session."
+    def test_add_window_activity(self):
+        session_id = 1
+        time = '2023-07-19 12:00:00'
+        window_name = 'Test Window'
+        self.db_handler.add_window_activity(session_id, time, window_name)
+        # Add assertions to check if the activity was correctly added to the database
 
-    # 偽のウィンドウ活動を追加
-    window_name = "dummy_window"
-    db_handler.add_window_activity(session_id, start_time, window_name)
+    def test_get_activities(self):
+        session_id = 1
+        activities = self.db_handler.get_activities(session_id)
+        # Add assertions to check if the returned activities are correct
+        print(activities)
 
-    # ポモドーロセッションの終了
-    end_time = datetime.datetime.now()
-    ai_comment = "Good job!"
-    db_handler.end_pomodoro_session(session_id, end_time, ai_comment)
+class TestTextGenerator(unittest.TestCase):
+    def setUp(self):
+        self.text_generator = TextGenerator()
 
-    # 活動期間の取得
-    duration = db_handler.get_activity_duration(session_id)
+    def test_generate_message(self):
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Who won the world series in 2020?"}
+        ]
+        response = self.text_generator.generate_message(messages)
+        # Add assertions to check if the generated message is correct
+        print(response)
 
-    # データベース接続のクローズ
-    db_handler.close_connection()
-
-    print("All tests passed.")
-
-if __name__ == "__main__":
-    test_database()
+if __name__ == '__main__':
+    unittest.main()

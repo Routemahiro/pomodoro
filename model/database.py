@@ -1,4 +1,3 @@
-# database.py
 import os
 import sqlite3
 from datetime import datetime
@@ -20,6 +19,24 @@ class DBHandler:
         ''', (session_id, time, window_name, activity_genre))
 
         self.connection.commit()
+
+    def create_connection(self, db_path):
+        connection = None
+        try:
+            connection = sqlite3.connect(db_path, check_same_thread=False)  # <- add this parameter
+        except sqlite3.Error as e:
+            print(f"Error connecting to database: {e}")
+        return connection
+    
+    def get_activities(self, session_id):
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            SELECT *
+            FROM WindowActivity
+            WHERE session_id = ?
+        ''', (session_id,))
+        activities = cursor.fetchall()
+        return activities
 
     # Other methods are the same...
 
@@ -43,6 +60,13 @@ def init_db():
             window_name TEXT NOT NULL,
             activity_genre TEXT,
             FOREIGN KEY(session_id) REFERENCES PomodoroSession(session_id)
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ActivityGenre (
+            window_name TEXT PRIMARY KEY,
+            activity_genre TEXT
         )
     ''')
 
