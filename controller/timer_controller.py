@@ -28,7 +28,8 @@ class Timer:
                 self.callback()
 
 class PomodoroTimer:
-    def __init__(self, work_time, break_time, work_callback, break_callback):
+    def __init__(self, session_id, work_time, break_time, work_callback, break_callback):
+        self.session_id = session_id
         self.work_time = work_time
         self.break_time = break_time
         self.work_callback = work_callback
@@ -65,7 +66,7 @@ class PomodoroTimer:
 
             # Create a message for the AI
             messages = [
-                {"role": "system", "content": "茜は女子高生な妹キャラのチャットAIです。おにいちゃんと会話します。"},
+                {"role": "system", "content": "チャットAIです。会話します。"},
                 {"role": "user", "content": f"私は以下の作業を行いました：{activities}"}
             ]
 
@@ -80,7 +81,7 @@ class PomodoroTimer:
 
             # Create a message for the AI
             messages = [
-                {"role": "system", "content": "茜は女子高生な妹キャラのチャットAIです。おにいちゃんと会話します。"},
+                {"role": "system", "content": "チャットAIです。会話します。"},
                 {"role": "user", "content": "休憩時間が終わりました"}
             ]
 
