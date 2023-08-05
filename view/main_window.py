@@ -1,63 +1,99 @@
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,QApplication
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+# view\main_window.py
+from pathlib import Path
 
-import sys
+# from tkinter import *
+# Explicit imports to satisfy Flake8
+from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
-class Mainwindow(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setGeometry(300,300, 400, 200)
-        self.setWindowTitle("Pomodoro Timer")
 
-        self.timer_label = QLabel("00:00", self)
-        self.timer_label.setAlignment(Qt.AlignCenter)
-        self.timer_label.setFont(QFont('Arial', 50))
+OUTPUT_PATH = Path.cwd()
+ASSETS_PATH = OUTPUT_PATH / "view" /"img"/  "main"
 
-        self.start_button = QPushButton("Start", self)
 
-        self.data_dl_button = QPushButton("", self)
-        self.data_dl_button.setStyleSheet(
-            "QPushButton {"
-            "background-color: #ff6347;"
-            "border-style: outset;"
-            "border-width: 2px;"
-            "border-radius: 50px;"
-            "border-color: beige;"
-            "}"
-        )
-        self.data_dl_button.setFixedSize(100, 100)
+def relative_to_assets(path: str) -> Path:
+    return ASSETS_PATH / Path(path)
 
-        self.setting_button = QPushButton("", self)
-        self.setting_button.setStyleSheet(
-            "QPushButton {"
-            "background-color: #ff6347;"
-            "border-style: outset;"
-            "border-width: 2px;"
-            "border-radius: 50px;"
-            "border-color: beige;"
-            "}"
-        )
-        self.setting_button.setFixedSize(100, 100)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.timer_label)
-        layout.addWidget(self.start_button)
+window = Tk()
 
-        button_layout = QHBoxLayout()
-        button_layout.addStretch(1)
-        button_layout.addWidget(self.data_dl_button)
-        button_layout.addWidget(self.setting_button)
-        
-        layout.addLayout(button_layout)
+window.geometry("500x300")
+window.configure(bg = "#F2F1DC")
 
-        self.setLayout(layout)
 
-def main():
-    app = QApplication(sys.argv)
-    main = Mainwindow()
-    main.show()
-    sys.exit(app.exec())
-    
-if __name__ == '__main__':
-    main()
+canvas = Canvas(
+    window,
+    bg = "#F2F1DC",
+    height = 300,
+    width = 500,
+    bd = 0,
+    highlightthickness = 0,
+    relief = "ridge"
+)
+
+canvas.place(x = 0, y = 0)
+button_image_1 = PhotoImage(
+    file=relative_to_assets("button_1.png"))
+button_1 = Button(
+    image=button_image_1,
+    borderwidth=0,
+    highlightthickness=0,
+    command=lambda: print("button_1 clicked"),
+    relief="flat"
+)
+button_1.place(
+    x=37.0,
+    y=185.0,
+    width=344.0,
+    height=84.93597412109375
+)
+
+canvas.create_text(
+    51.0,
+    32.000000000000014,
+    anchor="nw",
+    text="25:00",
+    fill="#222222",
+    font=("x12y12pxMaruMinya", 80 * -1)
+)
+
+canvas.create_rectangle(
+    40.0,
+    144.0,
+    381.0,
+    156.0,
+    fill="#BF3939",
+    outline="")
+
+button_image_2 = PhotoImage(
+    file=relative_to_assets("button_2.png"))
+button_2 = Button(
+    image=button_image_2,
+    borderwidth=0,
+    highlightthickness=0,
+    command=lambda: print("button_2 clicked"),
+    relief="flat"
+)
+button_2.place(
+    x=416.0,
+    y=210.0,
+    width=60.0,
+    height=60.0
+)
+
+button_image_3 = PhotoImage(
+    file=relative_to_assets("button_3.png"))
+button_3 = Button(
+    image=button_image_3,
+    borderwidth=0,
+    highlightthickness=0,
+    command=lambda: print("button_3 clicked"),
+    relief="flat"
+)
+button_3.place(
+    x=416.0,
+    y=144.0,
+    width=60.0,
+    height=60.0
+)
+window.resizable(False, False)
+window.mainloop()
