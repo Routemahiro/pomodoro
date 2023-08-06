@@ -4,18 +4,16 @@ from pathlib import Path
 from tkinter import Tk, Canvas, StringVar, OptionMenu, Button, PhotoImage
 from utils.config import save_config
 
-
 OUTPUT_PATH = Path.cwd()
 ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "setting"
 options = [str(i) for i in range(1, 61)]  # Options for the dropdowns
 
-
 class SettingsWindow:
-    def __init__(self):
+    def __init__(self,main_window):
         self.window = Tk()
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
-
+        self.main_window = main_window # 追加
         canvas = Canvas(
             self.window,
             bg="#F2F1DC",
@@ -55,7 +53,50 @@ class SettingsWindow:
             font=("x12y12pxMaruMinya", 20 * -1)
         )
 
-        # ... other widgets ...
+        canvas.create_rectangle(
+            161.0,
+            62.0,
+            480.0,
+            65.0,
+            fill="#BF3939",
+            outline=""
+        )
+
+        canvas.create_text(
+            161.0,
+            85.0,
+            anchor="nw",
+            text="休憩時間（短）",
+            fill="#222222",
+            font=("x12y12pxMaruMinya", 20 * -1)
+        )
+
+        canvas.create_rectangle(
+            161.0,
+            124.0,
+            463.0,
+            127.0,
+            fill="#4E6BED",
+            outline=""
+        )
+
+        canvas.create_text(
+            161.0,
+            147.0,
+            anchor="nw",
+            text="休憩時間（長）",
+            fill="#222222",
+            font=("x12y12pxMaruMinya", 20 * -1)
+        )
+
+        canvas.create_rectangle(
+            161.0,
+            186.0,
+            480.0,
+            189.0,
+            fill="#4E6BED",
+            outline=""
+        )
 
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
         self.button_1 = Button(
@@ -67,7 +108,20 @@ class SettingsWindow:
         )
         self.button_1.place(x=340.0, y=215.0, width=140.0, height=57.0)
 
-        # ... other widgets ...
+        self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
+        button_2 = Button(
+            image=self.button_image_2,
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.go_back_to_main,  # コマンドを変更
+            relief="flat"
+        )
+        button_2.place(
+            x=176.0,
+            y=223.0,
+            width=108.0,
+            height=45.0
+        )
 
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
@@ -78,6 +132,10 @@ class SettingsWindow:
         long_break_time = self.var3.get()
         save_config(work_time, short_break_time, long_break_time)
         print("Settings saved!")
+
+    def go_back_to_main(self):
+        self.window.destroy()  # 設定ウィンドウを閉じる
+        self.main_window.run()  # メインウィンドウを再表示
 
     def run(self):
         self.window.mainloop()
