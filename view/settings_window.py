@@ -1,7 +1,7 @@
 # view\seettings_window.py
 """設定画面でできること：ポモドーロセッションの作業時間や休憩時間の長さを設定"""
 from pathlib import Path
-from tkinter import Tk, Canvas, StringVar, OptionMenu, Button, PhotoImage
+from tkinter import Tk, Canvas, StringVar, OptionMenu, Button, PhotoImage,Toplevel
 from utils.config import save_config
 
 OUTPUT_PATH = Path.cwd()
@@ -9,8 +9,13 @@ ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "setting"
 options = [str(i) for i in range(1, 61)]  # Options for the dropdowns
 
 class SettingsWindow:
-    def __init__(self,main_window):
-        self.window = Tk()
+
+
+    def relative_to_assets(self, path: str) -> Path:
+        return ASSETS_PATH / Path(path)
+    
+    def __init__(self,main_window,root):
+        self.window = Toplevel(root)  # Toplevelウィンドウを作成
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
         self.main_window = main_window # 追加
@@ -100,6 +105,7 @@ class SettingsWindow:
 
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
         self.button_1 = Button(
+            self.window,  # 親ウィジェットとしてToplevelウィンドウを指定
             image=self.button_image_1,
             borderwidth=0,
             highlightthickness=0,
@@ -109,22 +115,23 @@ class SettingsWindow:
         self.button_1.place(x=340.0, y=215.0, width=140.0, height=57.0)
 
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
-        button_2 = Button(
+        self.button_2 = Button(
+            self.window,  # 親ウィジェットとしてToplevelウィンドウを指定
             image=self.button_image_2,
             borderwidth=0,
             highlightthickness=0,
-            command=self.go_back_to_main,  # コマンドを変更
+            command=self.go_back_to_main,
             relief="flat"
         )
-        button_2.place(
+        self.button_2.place(
             x=176.0,
             y=223.0,
             width=108.0,
             height=45.0
         )
 
-    def relative_to_assets(self, path: str) -> Path:
-        return ASSETS_PATH / Path(path)
+
+
 
     def save_settings(self):
         work_time = self.var1.get()
@@ -135,7 +142,7 @@ class SettingsWindow:
 
     def go_back_to_main(self):
         self.window.destroy()  # 設定ウィンドウを閉じる
-        self.main_window.run()  # メインウィンドウを再表示
+        self.main_window.show()  # メインウィンドウを再表示
 
     def run(self):
         self.window.mainloop()

@@ -1,3 +1,4 @@
+#view/main_window.py
 from tkinter import Tk, Canvas, Button, PhotoImage
 from pathlib import Path
 from view.settings_window import SettingsWindow  # 設定ウィンドウのクラスをインポート
@@ -8,11 +9,12 @@ ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "main"
 
 
 class MainWindow:
+    
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
 
-    def __init__(self):
-        self.window = Tk()
+    def __init__(self,root):
+        self.window = root
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
         canvas = Canvas(
@@ -76,9 +78,12 @@ class MainWindow:
         button_2.place(x=416.0, y=210.0, width=60.0, height=60.0)
 
     def open_settings(self):  # New method to open settings window
-        self.window.destroy()  # Close the main window
-        settings = SettingsWindow(self)  # selfを渡してmain_windowの参照を設定
+        self.window.withdraw()  # メインウィンドウを非表示
+        settings = SettingsWindow(self, self.window)  # self.windowを渡す
         settings.run()
+
+    def show(self):  # 新しいメソッド
+        self.window.deiconify()  # メインウィンドウを表示
 
         
 
