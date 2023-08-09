@@ -20,6 +20,7 @@ class MainWindow:
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
         # タイマーの開始時間を秒単位で設定（25分 = 1500秒）
+        self.progress_bar_length = 381.0  # 最大長さを381.0に設定
         self.timer_seconds = 1500
     # キャンバスをインスタンス変数として保存
         self.canvas = Canvas(
@@ -42,28 +43,9 @@ class MainWindow:
             relief="flat"
         )
         button_1.place(x=37.0, y=185.0, width=344.0, height=85.0)
+       
 
-        # 初期の "25:00" テキストを self.initial_timer_text に格納
-        self.initial_timer_text = self.canvas.create_text(
-            114.0,
-            32.0,
-            anchor="nw",
-            text="25:00",
-            fill="#222222",
-            font=("x12y12pxMaruMinya", 80 * -1)
-        )
 
-        
-
-        # タイマーのテキストを作成し、そのIDを保存
-        self.timer_text = self.canvas.create_text(
-            114.0,
-            32.0,
-            anchor="nw",
-            text="25:00",
-            fill="#222222",
-            font=("x12y12pxMaruMinya", 80 * -1)
-        )
 
         # プログレスバーの最大長さを保存
         self.progress_bar_length = 341.0  # 最大長さを適切な値に設定
@@ -106,9 +88,34 @@ class MainWindow:
             self.short_break_time = int(config["short_break_time"]) * 60
             self.long_break_time = int(config["long_break_time"]) * 60
 
+        # タイマーの開始時間を作業時間に設定
+        self.timer_seconds = self.work_time
+
         # セッションの状態とカウンターの初期化
         self.is_work_session = True  # 作業セッションかどうか
         self.session_count = 0  # セッションのカウント
+
+        # 初期タイマーテキストを作業時間に基づいて設定
+        initial_minutes, initial_seconds = divmod(self.work_time, 60)
+        initial_time_str = f"{initial_minutes:02}:{initial_seconds:02}"
+        self.initial_timer_text = self.canvas.create_text(
+            114.0,
+            32.0,
+            anchor="nw",
+            text=initial_time_str,
+            fill="#222222",
+            font=("x12y12pxMaruMinya", 80 * -1)
+        )
+
+        # タイマーのテキストを作成し、そのIDを保存
+        self.timer_text = self.canvas.create_text(
+            114.0,
+            32.0,
+            anchor="nw",
+            text=initial_time_str,
+            fill="#222222",
+            font=("x12y12pxMaruMinya", 80 * -1)
+        )
 
     def open_settings(self):  # New method to open settings window
         self.window.withdraw()  # メインウィンドウを非表示
@@ -122,16 +129,19 @@ class MainWindow:
         # タイマーが開始されるときに、初期の "25:00" テキストを削除
         self.canvas.delete(self.initial_timer_text)
         self.remaining_time = self.timer_seconds
+        
 
-        # セッションに応じてタイマーの時間を設定
+        # タイマーの時間をセッションに応じて設定
         if self.is_work_session:
             self.remaining_time = self.work_time
+            self.timer_seconds = self.work_time
         else:
-            # 4の倍数のセッションでは長い休憩、それ以外では短い休憩
             if self.session_count % 4 == 0:
                 self.remaining_time = self.long_break_time
+                self.timer_seconds = self.long_break_time
             else:
                 self.remaining_time = self.short_break_time
+                self.timer_seconds = self.short_break_time
 
         self.update_timer()
         
@@ -154,6 +164,9 @@ class MainWindow:
     def update_progress_bar(self, remaining_time):
         progress_percentage = remaining_time / self.timer_seconds
         current_length = self.progress_bar_length * progress_percentage
+        # 作業セッションと休憩セッションで色を切り替え
+        fill_color = "#BF3939" if self.is_work_session else "#4E6BED"
+        self.canvas.itemconfig(self.progress_bar, fill=fill_color)
         self.canvas.coords(self.progress_bar, 40.0, 144.0, 40.0 + current_length, 156.0)
          
 
