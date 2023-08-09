@@ -3,6 +3,7 @@ from tkinter import Tk, Canvas, Button, PhotoImage
 from pathlib import Path
 from view.settings_window import SettingsWindow  # 設定ウィンドウのクラスをインポート
 import time
+import json
 
 
 OUTPUT_PATH = Path.cwd()
@@ -98,6 +99,17 @@ class MainWindow:
         )
         button_2.place(x=416.0, y=210.0, width=60.0, height=60.0)
 
+        # 設定ファイルから時間を読み込む
+        with open('utils/config.json', 'r') as file:
+            config = json.load(file)
+            self.work_time = int(config["work_time"]) * 60  # 分を秒に変換
+            self.short_break_time = int(config["short_break_time"]) * 60
+            self.long_break_time = int(config["long_break_time"]) * 60
+
+        # セッションの状態とカウンターの初期化
+        self.is_work_session = True  # 作業セッションかどうか
+        self.session_count = 0  # セッションのカウント
+
     def open_settings(self):  # New method to open settings window
         self.window.withdraw()  # メインウィンドウを非表示
         settings = SettingsWindow(self, self.window)  # self.windowを渡す
@@ -110,8 +122,19 @@ class MainWindow:
         # タイマーが開始されるときに、初期の "25:00" テキストを削除
         self.canvas.delete(self.initial_timer_text)
         self.remaining_time = self.timer_seconds
-        self.update_timer()
 
+        # セッションに応じてタイマーの時間を設定
+        if self.is_work_session:
+            self.remaining_time = self.work_time
+        else:
+            # 4の倍数のセッションでは長い休憩、それ以外では短い休憩
+            if self.session_count % 4 == 0:
+                self.remaining_time = self.long_break_time
+            else:
+                self.remaining_time = self.short_break_time
+
+        self.update_timer()
+        
     def update_timer(self):
         if self.remaining_time > 0:
             minutes, seconds = divmod(self.remaining_time, 60)
@@ -120,6 +143,13 @@ class MainWindow:
             self.update_progress_bar(self.remaining_time)
             self.remaining_time -= 1
             self.window.after(1000, self.update_timer)
+            
+        if self.remaining_time <= 0:
+            # セッションの切り替えとカウントの更新
+            self.is_work_session = not self.is_work_session
+            if not self.is_work_session:
+                self.session_count += 1
+            self.start_timer()
 
     def update_progress_bar(self, remaining_time):
         progress_percentage = remaining_time / self.timer_seconds
