@@ -35,14 +35,19 @@ class MainWindow:
         self.canvas.place(x=0, y=0)
 
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
-        button_1 = Button(
+        # 「おしまい」のボタン画像をロード
+        self.button_image_4 = PhotoImage(file=self.relative_to_assets("button_4.png"))
+
+        # スタートボタン
+        self.button_start = Button(
             image=self.button_image_1,
             borderwidth=0,
             highlightthickness=0,
             command=self.start_timer,  # タイマーを開始するためのコマンド
             relief="flat"
         )
-        button_1.place(x=37.0, y=185.0, width=344.0, height=85.0)
+        self.button_start.place(x=37.0, y=185.0, width=344.0, height=85.0)
+
        
 
 
@@ -126,10 +131,13 @@ class MainWindow:
         self.window.deiconify()  # メインウィンドウを表示
 
     def start_timer(self):
+        # スタートボタンの画像とコマンドを変更
+        self.button_start.config(image=self.button_image_4, command=self.end_timer)
+
         # タイマーが開始されるときに、初期の "25:00" テキストを削除
         self.canvas.delete(self.initial_timer_text)
         self.remaining_time = self.timer_seconds
-        
+
 
         # タイマーの時間をセッションに応じて設定
         if self.is_work_session:
@@ -160,6 +168,11 @@ class MainWindow:
             if not self.is_work_session:
                 self.session_count += 1
             self.start_timer()
+
+    def end_timer(self):
+        # 「おしまい」ボタンがクリックされたときの処理
+        # ここに後で追加する機能のコードを書く
+        print("おしまいボタンがクリックされました")
 
     def update_progress_bar(self, remaining_time):
         progress_percentage = remaining_time / self.timer_seconds
