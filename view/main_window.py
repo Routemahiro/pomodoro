@@ -130,13 +130,19 @@ class MainWindow:
     def show(self):  # 新しいメソッド
         self.window.deiconify()  # メインウィンドウを表示
 
+
     def start_timer(self):
+        # タイマーのキャンセルフラグをリセット
+        self.cancel_timer = False
         # スタートボタンの画像とコマンドを変更
         self.button_start.config(image=self.button_image_4, command=self.end_timer)
 
         # タイマーが開始されるときに、初期の "25:00" テキストを削除
         self.canvas.delete(self.initial_timer_text)
         self.remaining_time = self.timer_seconds
+
+        # タイマーのキャンセルフラグを設定
+        self.cancel_timer = False
 
 
         # タイマーの時間をセッションに応じて設定
@@ -154,6 +160,9 @@ class MainWindow:
         self.update_timer()
         
     def update_timer(self):
+        if self.cancel_timer:
+            return  # タイマーがキャンセルされた場合、更新を停止
+        
         if self.remaining_time > 0:
             minutes, seconds = divmod(self.remaining_time, 60)
             time_str = f"{minutes:02}:{seconds:02}"
@@ -167,7 +176,12 @@ class MainWindow:
             self.is_work_session = not self.is_work_session
             if not self.is_work_session:
                 self.session_count += 1
-            self.start_timer()
+            
+            # タイマーのキャンセルフラグを設定
+            self.cancel_timer = True
+            
+            # 以前のタイマーの更新が完全に停止するまで一時停止
+            self.window.after(1000, self.start_timer)
 
     def end_timer(self):
         # 「おしまい」ボタンがクリックされたときの処理
