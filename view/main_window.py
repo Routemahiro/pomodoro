@@ -1,5 +1,5 @@
 #view/main_window.py
-from tkinter import Tk, Canvas, Button, PhotoImage
+from tkinter import Tk, Canvas, Button, PhotoImage,Toplevel
 from pathlib import Path
 from view.settings_window import SettingsWindow  # 設定ウィンドウのクラスをインポート
 import time
@@ -178,8 +178,8 @@ class MainWindow:
 
     def end_timer(self):
         # 「おしまい」ボタンがクリックされたときの処理
-        # ここに後で追加する機能のコードを書く
         print("おしまいボタンがクリックされました")
+        EndQuestionWindow(self) # 新しいウィンドウを表示
 
     def update_progress_bar(self, remaining_time):
         # タイマーが一時停止されていない場合、色を適切に設定
@@ -197,3 +197,36 @@ class MainWindow:
 
     def run(self):
         self.window.mainloop()
+
+
+
+class EndQuestionWindow:
+    ASSETS_PATH = Path.cwd() / "view" / "img" / "end_question"
+
+    def relative_to_assets(self, path: str) -> Path:
+        return self.ASSETS_PATH / Path(path)
+
+    def __init__(self, parent):
+        self.window = Toplevel(parent.window) # Use Toplevel instead of Tk
+        self.window.geometry("300x200")
+        self.window.configure(bg="#D9D9D9")
+        self.window.resizable(False, False)
+
+        # Centering the window
+        x = parent.window.winfo_x() + (parent.window.winfo_width() // 2) - (300 // 2)
+        y = parent.window.winfo_y() + (parent.window.winfo_height() // 2) - (200 // 2)
+        self.window.geometry("+%d+%d" % (x, y))
+
+        canvas = Canvas(self.window, bg="#D9D9D9", height=200, width=300, bd=0, highlightthickness=0, relief="ridge")
+        canvas.place(x=0, y=0)
+
+        self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
+        button_1 = Button(image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
+        button_1.place(x=0.0, y=140.0, width=150.0, height=60.0)
+
+        self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
+        button_2 = Button(image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
+        button_2.place(x=150.0, y=140.0, width=150.0, height=60.0)
+
+        canvas.create_text(11.0, 25.0, anchor="nw", text="きょうは\nおしまいにしますか？", fill="#222222", font=("x12y12pxMaruMinya", 20 * -1))
+
