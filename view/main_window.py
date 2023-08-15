@@ -66,25 +66,29 @@ class MainWindow:
         )
 
         self.button_image_3 = PhotoImage(file=self.relative_to_assets("button_3.png"))
-        button_3 = Button(
+        self.button_3 = Button(
             image=self.button_image_3,
             borderwidth=0,
             highlightthickness=0,
             command=lambda: print("button_3 clicked"),
             relief="flat"
         )
-        button_3.place(x=416.0, y=144.0, width=60.0, height=60.0)
+        self.button_3.place(x=416.0, y=144.0, width=60.0, height=60.0)
 
         # Button to open settings window
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
-        button_2 = Button(
+        self.button_2 = Button(
             image=self.button_image_2,
             borderwidth=0,
             highlightthickness=0,
             command=self.open_settings,  # Updated command to open settings window
             relief="flat"
         )
-        button_2.place(x=416.0, y=210.0, width=60.0, height=60.0)
+        self.button_2.place(x=416.0, y=210.0, width=60.0, height=60.0)
+
+        # button_5の画像をロード
+        self.button_image_5 = PhotoImage(file=self.relative_to_assets("button_5.png"))
+
 
         # 設定ファイルから時間を読み込む
         with open('utils/config.json', 'r') as file:
@@ -136,6 +140,20 @@ class MainWindow:
         self.cancel_timer = False
         # スタートボタンの画像とコマンドを変更
         self.button_start.config(image=self.button_image_4, command=self.end_timer)
+
+        # button_2とbutton_3を非表示にする
+        self.button_2.place_forget()
+        self.button_3.place_forget()
+
+        # button_5をbutton_2と同じ位置に表示
+        button_5 = Button(
+            image=self.button_image_5,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("button_5 clicked"),
+            relief="flat"
+        )
+        button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
 
         # タイマーが開始されるときに、初期の "25:00" テキストを削除
         self.canvas.delete(self.initial_timer_text)
