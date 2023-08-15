@@ -19,112 +19,51 @@ class MainWindow:
         self.window = root
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
-        # タイマーの開始時間を秒単位で設定（25分 = 1500秒）
-        self.progress_bar_length = 381.0  # 最大長さを381.0に設定
+        self.progress_bar_length = 381.0
         self.timer_seconds = 1500
-    # キャンバスをインスタンス変数として保存
-        self.canvas = Canvas(
-            self.window,
-            bg="#F2F1DC",
-            height=300,
-            width=500,
-            bd=0,
-            highlightthickness=0,
-            relief="ridge"
-        )
+        self.progress_bar_color = "#BF3939" # プログレスバーの初期色
+        self.timer_paused = False
+
+        self.button_image_6 = PhotoImage(file=self.relative_to_assets("button_6.png"))
+
+        # キャンバスの設定
+        self.canvas = Canvas(self.window, bg="#F2F1DC", height=300, width=500, bd=0, highlightthickness=0, relief="ridge")
         self.canvas.place(x=0, y=0)
 
+        # ボタン画像のロード
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
-        # 「おしまい」のボタン画像をロード
         self.button_image_4 = PhotoImage(file=self.relative_to_assets("button_4.png"))
-
-        # スタートボタン
-        self.button_start = Button(
-            image=self.button_image_1,
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.start_timer,  # タイマーを開始するためのコマンド
-            relief="flat"
-        )
-        self.button_start.place(x=37.0, y=185.0, width=344.0, height=85.0)
-
-       
-
-
-
-        # プログレスバーの最大長さを保存
-        self.progress_bar_length = 341.0  # 最大長さを適切な値に設定
-
-        # プログレスバーを作成し、そのIDを保存
-        self.progress_bar = self.canvas.create_rectangle(
-            40.0,
-            144.0,
-            40.0 + self.progress_bar_length,  # 最初は最大長さ
-            156.0,
-            fill="#BF3939",
-            outline=""
-        )
-
         self.button_image_3 = PhotoImage(file=self.relative_to_assets("button_3.png"))
-        self.button_3 = Button(
-            image=self.button_image_3,
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: print("button_3 clicked"),
-            relief="flat"
-        )
-        self.button_3.place(x=416.0, y=144.0, width=60.0, height=60.0)
-
-        # Button to open settings window
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
-        self.button_2 = Button(
-            image=self.button_image_2,
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.open_settings,  # Updated command to open settings window
-            relief="flat"
-        )
-        self.button_2.place(x=416.0, y=210.0, width=60.0, height=60.0)
-
-        # button_5の画像をロード
         self.button_image_5 = PhotoImage(file=self.relative_to_assets("button_5.png"))
 
+        # スタートボタン
+        self.button_start = Button(image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.start_timer, relief="flat")
+        self.button_start.place(x=37.0, y=185.0, width=344.0, height=85.0)
 
-        # 設定ファイルから時間を読み込む
+        # プログレスバーの設定
+        self.progress_bar_length = 341.0
+        self.progress_bar = self.canvas.create_rectangle(40.0, 144.0, 40.0 + self.progress_bar_length, 156.0, fill="#BF3939", outline="")
+
+        # その他のボタンの設定
+        self.button_3 = Button(image=self.button_image_3, borderwidth=0, highlightthickness=0, command=lambda: print("button_3 clicked"), relief="flat")
+        self.button_3.place(x=416.0, y=144.0, width=60.0, height=60.0)
+        self.button_2 = Button(image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.open_settings, relief="flat")
+        self.button_2.place(x=416.0, y=210.0, width=60.0, height=60.0)
+
+        # タイマー設定の読み込み
         with open('utils/config.json', 'r') as file:
             config = json.load(file)
-            self.work_time = int(config["work_time"]) * 60  # 分を秒に変換
+            self.work_time = int(config["work_time"]) * 60
             self.short_break_time = int(config["short_break_time"]) * 60
             self.long_break_time = int(config["long_break_time"]) * 60
-
-        # タイマーの開始時間を作業時間に設定
         self.timer_seconds = self.work_time
-
-        # セッションの状態とカウンターの初期化
-        self.is_work_session = True  # 作業セッションかどうか
-        self.session_count = 0  # セッションのカウント
-
-        # 初期タイマーテキストを作業時間に基づいて設定
+        self.is_work_session = True
+        self.session_count = 0
         initial_minutes, initial_seconds = divmod(self.work_time, 60)
         initial_time_str = f"{initial_minutes:02}:{initial_seconds:02}"
-        self.initial_timer_text = self.canvas.create_text(
-            114.0,
-            32.0,
-            anchor="nw",
-            text=initial_time_str,
-            fill="#222222",
-            font=("x12y12pxMaruMinya", 80 * -1)
-        )
-
-        # タイマーのテキストを作成し、そのIDを保存
-        self.timer_text = self.canvas.create_text(
-            114.0,
-            32.0,
-            anchor="nw",
-            text=initial_time_str,
-            fill="#222222",
-            font=("x12y12pxMaruMinya", 80 * -1)
-        )
+        self.initial_timer_text = self.canvas.create_text(114.0, 32.0, anchor="nw", text=initial_time_str, fill="#222222", font=("x12y12pxMaruMinya", 80 * -1))
+        self.timer_text = self.canvas.create_text(114.0, 32.0, anchor="nw", text=initial_time_str, fill="#222222", font=("x12y12pxMaruMinya", 80 * -1))
 
     def open_settings(self):  # New method to open settings window
         self.window.withdraw()  # メインウィンドウを非表示
@@ -146,14 +85,14 @@ class MainWindow:
         self.button_3.place_forget()
 
         # button_5をbutton_2と同じ位置に表示
-        button_5 = Button(
+        self.button_5 = Button(
             image=self.button_image_5,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("button_5 clicked"),
+            command=self.pause_timer,  # タイマーを一時停止するためのコマンド
             relief="flat"
         )
-        button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
+        self.button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
 
         # タイマーが開始されるときに、初期の "25:00" テキストを削除
         self.canvas.delete(self.initial_timer_text)
@@ -176,8 +115,44 @@ class MainWindow:
                 self.timer_seconds = self.short_break_time
 
         self.update_timer()
+
+    def pause_timer(self):
+        # タイマーの一時停止フラグを切り替え
+        self.timer_paused = not self.timer_paused
+        if self.timer_paused:
+            print("Timer paused")
+            # 一時停止の文字を表示
+            self.paused_text = self.canvas.create_text(
+                24.0, 6.0, anchor="nw",
+                text="停止中",
+                fill="#222222",
+                font=("x12y12pxMaruMinya", 18)
+            )
+            # button_5の画像をbutton_6に切り替え
+            self.button_5.config(image=self.button_image_6)
+
+            # プログレスバーの色を変更
+            self.progress_bar_color = "#AA6868" if self.is_work_session else "#5A638B"
+            self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
+        else:
+            print("Timer resumed")
+            # 一時停止の文字を削除
+            self.canvas.delete(self.paused_text)
+            # button_6の画像をbutton_5に切り替え
+            self.button_5.config(image=self.button_image_5)
+
+            # プログレスバーの色を元に戻す
+            self.progress_bar_color = "#BF3939" if self.is_work_session else "#4E6BED"
+            self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
+
+
         
     def update_timer(self):
+        # タイマーが一時停止されている場合、1秒後に再試行
+        if self.timer_paused:
+            self.window.after(1000, self.update_timer)
+            return
+        
         if self.cancel_timer:
             return  # タイマーがキャンセルされた場合、更新を停止
         
@@ -207,12 +182,17 @@ class MainWindow:
         print("おしまいボタンがクリックされました")
 
     def update_progress_bar(self, remaining_time):
+        # タイマーが一時停止されていない場合、色を適切に設定
+        if not self.timer_paused:
+            self.progress_bar_color = "#BF3939" if self.is_work_session else "#4E6BED"
+
         progress_percentage = remaining_time / self.timer_seconds
         current_length = self.progress_bar_length * progress_percentage
-        # 作業セッションと休憩セッションで色を切り替え
-        fill_color = "#BF3939" if self.is_work_session else "#4E6BED"
-        self.canvas.itemconfig(self.progress_bar, fill=fill_color)
+        # 設定された色でプログレスバーを更新
+        self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
         self.canvas.coords(self.progress_bar, 40.0, 144.0, 40.0 + current_length, 156.0)
+
+
          
 
     def run(self):
