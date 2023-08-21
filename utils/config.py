@@ -18,7 +18,7 @@ def save_config(work_time, short_break_time, long_break_time):
     }
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
-
+# Config保存後にプログラムの再起動か、メインウィンドウの再起動を行いたい。現在だと設定変更したものが、すぐに反映されないので
 
 class Config:
     def __init__(self, config_file=Path(__file__).parent / "config.json"):
