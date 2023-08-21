@@ -2,6 +2,7 @@
 from tkinter import Tk, Canvas, Button, PhotoImage,Toplevel
 from pathlib import Path
 from view.settings_window import SettingsWindow  # 設定ウィンドウのクラスをインポート
+from view.end_window import EndWindow
 import time
 import json
 
@@ -237,7 +238,7 @@ class EndQuestionWindow:
 
         # button_2
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
-        button_2 = Button(self.window, image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
+        button_2 = Button(self.window, image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.open_end_window, relief="flat")
         button_2.image = self.button_image_2  # 画像への参照を保持
         button_2_window = canvas.create_window(150.0, 140.0, anchor="nw", window=button_2)
 
@@ -247,4 +248,10 @@ class EndQuestionWindow:
     def resume_timer(self):
         self.window.destroy()  # ウィンドウを閉じる
         self.parent.pause_timer()  # タイマーを再開
+
+
+    def open_end_window(self):  # New method to open settings window
+        self.window.withdraw()  # メインウィンドウを非表示
+        end_window = EndWindow(self, self.window)  # self.windowを渡す
+        end_window.run()
         
