@@ -176,10 +176,11 @@ class MainWindow:
             # 以前のタイマーの更新が完全に停止するまで一時停止
             self.window.after(1000, self.start_timer)
 
+    # MainWindow クラス内の end_timer メソッドの変更
     def end_timer(self):
-        # 「おしまい」ボタンがクリックされたときの処理
         print("おしまいボタンがクリックされました")
-        EndQuestionWindow(self) # 新しいウィンドウを表示
+        self.pause_timer()  # タイマーを一時停止
+        EndQuestionWindow(self)  # 新しいウィンドウを表示
 
     def update_progress_bar(self, remaining_time):
         # タイマーが一時停止されていない場合、色を適切に設定
@@ -207,10 +208,16 @@ class EndQuestionWindow:
         return self.ASSETS_PATH / Path(path)
 
     def __init__(self, parent):
+        self.parent = parent  # 親ウィンドウへの参照を保持
+
+        
+
         self.window = Toplevel(parent.window)
         self.window.geometry("300x200")
         self.window.configure(bg="#D9D9D9")
         self.window.resizable(False, False)
+        # 以下の行を追加してウィンドウをモーダルにする
+        self.window.grab_set()
 
         # Centering the window
         x = parent.window.winfo_x() + (parent.window.winfo_width() // 2) - (300 // 2)
@@ -222,9 +229,11 @@ class EndQuestionWindow:
 
         # button_1
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
-        self.button_1 = Button(self.window, image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
-        self.button_1.image = self.button_image_1  # 画像への参照を保持
+        # button_1 の command 属性の変更
+        self.button_1 = Button(self.window, image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.resume_timer, relief="flat")
+        self.button_1.image = self.button_image_1
         self.button_1_window = canvas.create_window(0.0, 140.0, anchor="nw", window=self.button_1)
+
 
         # button_2
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
@@ -234,4 +243,8 @@ class EndQuestionWindow:
 
         canvas.create_text(11.0, 25.0, anchor="nw", text="きょうは\nおしまいにしますか？", fill="#222222", font=("x12y12pxMaruMinya", 20 * -1))
 
+    # EndQuestionWindow クラスに resume_timer メソッドを追加
+    def resume_timer(self):
+        self.window.destroy()  # ウィンドウを閉じる
+        self.parent.pause_timer()  # タイマーを再開
         
