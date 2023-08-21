@@ -207,7 +207,7 @@ class EndQuestionWindow:
         return self.ASSETS_PATH / Path(path)
 
     def __init__(self, parent):
-        self.window = Toplevel(parent.window) # Use Toplevel instead of Tk
+        self.window = Toplevel(parent.window)
         self.window.geometry("300x200")
         self.window.configure(bg="#D9D9D9")
         self.window.resizable(False, False)
@@ -220,13 +220,18 @@ class EndQuestionWindow:
         canvas = Canvas(self.window, bg="#D9D9D9", height=200, width=300, bd=0, highlightthickness=0, relief="ridge")
         canvas.place(x=0, y=0)
 
+        # button_1
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
-        button_1 = Button(image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
-        button_1.place(x=0.0, y=140.0, width=150.0, height=60.0)
+        self.button_1 = Button(self.window, image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
+        self.button_1.image = self.button_image_1  # 画像への参照を保持
+        self.button_1_window = canvas.create_window(0.0, 140.0, anchor="nw", window=self.button_1)
 
+        # button_2
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
-        button_2 = Button(image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
-        button_2.place(x=150.0, y=140.0, width=150.0, height=60.0)
+        button_2 = Button(self.window, image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.window.destroy, relief="flat")
+        button_2.image = self.button_image_2  # 画像への参照を保持
+        button_2_window = canvas.create_window(150.0, 140.0, anchor="nw", window=button_2)
 
         canvas.create_text(11.0, 25.0, anchor="nw", text="きょうは\nおしまいにしますか？", fill="#222222", font=("x12y12pxMaruMinya", 20 * -1))
 
+        
