@@ -250,8 +250,8 @@ class EndQuestionWindow:
         self.parent.pause_timer()  # タイマーを再開
 
 
-    def open_end_window(self):  # New method to open settings window
-        self.window.withdraw()  # メインウィンドウを非表示
+    def open_end_window(self):
+        self.window.withdraw()  # 終了確認ウィンドウを非表示
+        self.parent.window.withdraw()  # メインウィンドウを非表示
         end_window = EndWindow(self, self.window)  # self.windowを渡す
         end_window.run()
-        
