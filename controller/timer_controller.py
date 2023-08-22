@@ -39,6 +39,7 @@ class PomodoroTimer:
         self.break_callback = break_callback
         self.timer = Timer(self.work_time, self.switch_mode)
         self.work_mode = True
+        self.activity_timer = Timer(60, self.update_work_activity)  # 1分ごとにupdate_work_activityを呼び出すタイマー
 
         # Create a DBHandler and TextGenerator instances
         self.db_handler = DBHandler()
@@ -46,9 +47,11 @@ class PomodoroTimer:
 
     def start(self):
         self.timer.start()
+        self.activity_timer.start()  # 活動タイマーを開始
 
     def stop(self):
         self.timer.stop()
+        self.activity_timer.stop()  # 活動タイマーを停止
 
     def switch_mode(self):
         if self.work_mode:
