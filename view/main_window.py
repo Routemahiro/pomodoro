@@ -7,6 +7,7 @@ import time
 import json
 
 
+
 OUTPUT_PATH = Path.cwd()
 ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "main"
 
@@ -16,8 +17,9 @@ class MainWindow:
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
 
-    def __init__(self, root):
-        self.window = root
+    def __init__(self, controller):
+        self.controller = controller
+        self.window = Tk()
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
         self.progress_bar_length = 381.0

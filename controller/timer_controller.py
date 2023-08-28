@@ -141,3 +141,43 @@ class PomodoroTimer:
             
         # 非同期処理によって、AIにジャンルの推定をしてもらう
         activity_genre = asyncio.run(self.estimate_activity_genre(window_name))
+
+
+
+
+
+# Main_windowから移動
+import json
+
+class TimerController:
+    def __init__(self):
+        self.load_config()
+        self.timer_seconds = self.work_time
+        self.is_work_session = True
+        self.session_count = 0
+        self.timer_paused = False
+
+    def load_config(self):
+        with open('utils/config.json', 'r') as file:
+            config = json.load(file)
+            self.work_time = int(config["work_time"]) * 60
+            self.short_break_time = int(config["short_break_time"]) * 60
+            self.long_break_time = int(config["long_break_time"]) * 60
+
+    def start_timer(self):
+        self.timer_seconds = self.work_time if self.is_work_session else self.short_break_time
+        self.timer_paused = False
+
+    def pause_timer(self):
+        self.timer_paused = not self.timer_paused
+
+    def end_timer(self):
+        self.is_work_session = not self.is_work_session
+        if not self.is_work_session:
+            self.session_count += 1
+
+    def update_timer(self):
+        if self.timer_paused:
+            return
+        if self.timer_seconds > 0:
+            self.timer_seconds -= 1
