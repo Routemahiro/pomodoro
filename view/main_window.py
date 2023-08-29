@@ -76,108 +76,92 @@ class MainWindow:
     def show(self):  # 新しいメソッド
         self.window.deiconify()  # メインウィンドウを表示
 
-
     def start_timer(self):
-        # タイマーのキャンセルフラグをリセット
-        self.cancel_timer = False
-        # スタートボタンの画像とコマンドを変更
-        self.button_start.config(image=self.button_image_4, command=self.end_timer)
-
-        # button_2とbutton_3を非表示にする
-        self.button_2.place_forget()
-        self.button_3.place_forget()
-
-        # button_5をbutton_2と同じ位置に表示
-        self.button_5 = Button(
-            image=self.button_image_5,
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.pause_timer,  # タイマーを一時停止するためのコマンド
-            relief="flat"
-        )
-        self.button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
-
-        # タイマーが開始されるときに、初期の "25:00" テキストを削除
-        self.canvas.delete(self.initial_timer_text)
-        self.remaining_time = self.timer_seconds
-
-        # タイマーのキャンセルフラグを設定
-        self.cancel_timer = False
-
-
-        # タイマーの時間をセッションに応じて設定
-        if self.is_work_session:
-            self.remaining_time = self.work_time
-            self.timer_seconds = self.work_time
-        else:
-            if self.session_count % 4 == 0:
-                self.remaining_time = self.long_break_time
-                self.timer_seconds = self.long_break_time
-            else:
-                self.remaining_time = self.short_break_time
-                self.timer_seconds = self.short_break_time
-
-        self.update_timer()
+        self.controller.start_timer()  # TimerControllerに処理を委託
 
     def pause_timer(self):
-        # タイマーの一時停止フラグを切り替え
-        self.timer_paused = not self.timer_paused
-        if self.timer_paused:
-            print("Timer paused")
-            # 一時停止の文字を表示
-            self.paused_text = self.canvas.create_text(
-                24.0, 6.0, anchor="nw",
-                text="停止中",
-                fill="#222222",
-                font=("x12y12pxMaruMinya", 18)
-            )
-            # button_5の画像をbutton_6に切り替え
-            self.button_5.config(image=self.button_image_6)
+        self.controller.pause_timer()  # TimerControllerに処理を委託
+        
+    # def start_timer(self):
+    #     self.controller.start_timer()  # Modelにタイマーの開始を依頼
 
-            # プログレスバーの色を変更
-            self.progress_bar_color = "#AA6868" if self.is_work_session else "#5A638B"
-            self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
-        else:
-            print("Timer resumed")
-            # 一時停止の文字を削除
-            self.canvas.delete(self.paused_text)
-            # button_6の画像をbutton_5に切り替え
-            self.button_5.config(image=self.button_image_5)
+    #     # スタートボタンの画像とコマンドを変更
+    #     self.button_start.config(image=self.button_image_4, command=self.end_timer)
 
-            # プログレスバーの色を元に戻す
-            self.progress_bar_color = "#BF3939" if self.is_work_session else "#4E6BED"
-            self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
+    #     # button_2とbutton_3を非表示にする
+    #     self.button_2.place_forget()
+    #     self.button_3.place_forget()
+
+    #     # button_5をbutton_2と同じ位置に表示
+    #     self.button_5 = Button(
+    #         image=self.button_image_5,
+    #         borderwidth=0,
+    #         highlightthickness=0,
+    #         command=self.pause_timer,  # タイマーを一時停止するためのコマンド
+    #         relief="flat"
+    #     )
+    #     self.button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
+
+    #     # タイマーが開始されるときに、初期の "25:00" テキストを削除
+    #     self.canvas.delete(self.initial_timer_text)
+
+
+
+    # def pause_timer(self):
+    #     self.controller.pause_timer()  # Modelに一時停止のトグルを依頼
+
+    #     if self.controller.timer_controller.timer_paused:  # Modelの状態に基づく
+    #         print("Timer paused")
+    #         # 一時停止の文字を表示
+    #         self.paused_text = self.canvas.create_text(
+    #             24.0, 6.0, anchor="nw",
+    #             text="停止中",
+    #             fill="#222222",
+    #             font=("x12y12pxMaruMinya", 18)
+    #         )
+    #         # button_5の画像をbutton_6に切り替え
+    #         self.button_5.config(image=self.button_image_6)
+
+    #         # プログレスバーの色を変更
+    #         self.progress_bar_color = "#AA6868" if self.controller.timer_controller.is_work_session else "#5A638B"
+    #         self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
+    #     else:
+    #         print("Timer resumed")
+    #         # 一時停止の文字を削除
+    #         self.canvas.delete(self.paused_text)
+    #         # button_6の画像をbutton_5に切り替え
+    #         self.button_5.config(image=self.button_image_5)
+
+    #         # プログレスバーの色を元に戻す
+    #         self.progress_bar_color = "#BF3939" if self.controller.timer_controller.is_work_session else "#4E6BED"
+    #         self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
+
+
 
 
         
+
+
+
     def update_timer(self):
-        # タイマーが一時停止されている場合、1秒後に再試行
-        if self.timer_paused:
+        self.controller.update_timer()  # TimerControllerに処理を委託
+        if self.controller.timer_session.timer_paused:
             self.window.after(1000, self.update_timer)
             return
-        
-        if self.cancel_timer:
-            return  # タイマーがキャンセルされた場合、更新を停止
-        
-        if self.remaining_time > 0:
-            minutes, seconds = divmod(self.remaining_time, 60)
+
+        if self.controller.timer_session.cancel_timer:
+            return
+
+        remaining_time = self.controller.timer_session.remaining_time
+        if remaining_time > 0:
+            minutes, seconds = divmod(remaining_time, 60)
             time_str = f"{minutes:02}:{seconds:02}"
             self.canvas.itemconfig(self.timer_text, text=time_str)
-            self.update_progress_bar(self.remaining_time)
-            self.remaining_time -= 1
+            self.update_progress_bar(remaining_time)
             self.window.after(1000, self.update_timer)
-            
-        if self.remaining_time <= 0:
-            # セッションの切り替えとカウントの更新
-            self.is_work_session = not self.is_work_session
-            if not self.is_work_session:
-                self.session_count += 1
-            
-            # タイマーのキャンセルフラグを設定
-            self.cancel_timer = True
-            
-            # 以前のタイマーの更新が完全に停止するまで一時停止
+        else:
             self.window.after(1000, self.start_timer)
+
 
     # MainWindow クラス内の end_timer メソッドの変更
     def end_timer(self):

@@ -7,8 +7,12 @@
 #     app = MainWindow(root)
 #     app.run()
 
-from controller.window_controller import WindowController
+# main.py
+
+from controller.timer_controller import TimerController
+from view.main_window import MainWindow
 
 if __name__ == "__main__":
-    controller = WindowController()
-    controller.main_window.run()
+    timer_controller = TimerController()
+    main_window = MainWindow(timer_controller)
+    main_window.run()

@@ -1,6 +1,7 @@
 # controller/timer_controller.py
 from model.database import DBHandler
 from utils.text_generator import TextGenerator
+from model.pomodoro_session import PomodoroSession
 import threading
 import time
 import asyncio
@@ -38,6 +39,7 @@ class PomodoroTimer:
         self.work_callback = work_callback
         self.break_callback = break_callback
         self.timer = Timer(self.work_time, self.switch_mode)
+        self.timer_session = PomodoroSession()
         self.work_mode = True
         self.activity_timer = Timer(60, self.update_work_activity)  # 1分ごとにupdate_work_activityを呼び出すタイマー
 
@@ -165,8 +167,17 @@ class TimerController:
             self.long_break_time = int(config["long_break_time"]) * 60
 
     def start_timer(self):
-        self.timer_seconds = self.work_time if self.is_work_session else self.short_break_time
-        self.timer_paused = False
+        self.cancel_timer = False  # タイマーのキャンセルフラグをリセット
+
+        # タイマーの時間をセッションに応じて設定
+        if self.is_work_session:
+            self.timer_seconds = self.work_time
+        else:
+            if self.session_count % 4 == 0:
+                self.timer_seconds = self.long_break_time
+            else:
+                self.timer_seconds = self.short_break_time
+
 
     def pause_timer(self):
         self.timer_paused = not self.timer_paused
@@ -177,7 +188,13 @@ class TimerController:
             self.session_count += 1
 
     def update_timer(self):
-        if self.timer_paused:
+        if self.timer_paused or self.cancel_timer:
             return
-        if self.timer_seconds > 0:
-            self.timer_seconds -= 1
+
+        if self.remaining_time > 0:
+            self.remaining_time -= 1
+        else:
+            self.is_work_session = not self.is_work_session
+            if not self.is_work_session:
+                self.session_count += 1
+            self.cancel_timer = True
