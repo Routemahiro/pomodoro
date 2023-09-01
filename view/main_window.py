@@ -19,6 +19,7 @@ class MainWindow:
 
     def __init__(self, controller):
         self.controller = controller
+        print(f"Controller in MainWindow: {self.controller}")  # Debug
         self.window = Tk()
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
@@ -76,71 +77,17 @@ class MainWindow:
     def show(self):  # 新しいメソッド
         self.window.deiconify()  # メインウィンドウを表示
 
+
     def start_timer(self):
-        self.controller.start_timer()  # TimerControllerに処理を委託
+        print(f"Controller in start_timer: {self.controller}")  # Debug
+        print("start_timer is called")
+        self.controller.start_timer()  # Modelにタイマーの開始を依頼
+
+        # スタートボタンの画像とコマンドを変更
+        self.button_start.config(image=self.button_image_4, command=self.end_timer)
 
     def pause_timer(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
-        
-    # def start_timer(self):
-    #     self.controller.start_timer()  # Modelにタイマーの開始を依頼
-
-    #     # スタートボタンの画像とコマンドを変更
-    #     self.button_start.config(image=self.button_image_4, command=self.end_timer)
-
-    #     # button_2とbutton_3を非表示にする
-    #     self.button_2.place_forget()
-    #     self.button_3.place_forget()
-
-    #     # button_5をbutton_2と同じ位置に表示
-    #     self.button_5 = Button(
-    #         image=self.button_image_5,
-    #         borderwidth=0,
-    #         highlightthickness=0,
-    #         command=self.pause_timer,  # タイマーを一時停止するためのコマンド
-    #         relief="flat"
-    #     )
-    #     self.button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
-
-    #     # タイマーが開始されるときに、初期の "25:00" テキストを削除
-    #     self.canvas.delete(self.initial_timer_text)
-
-
-
-    # def pause_timer(self):
-    #     self.controller.pause_timer()  # Modelに一時停止のトグルを依頼
-
-    #     if self.controller.timer_controller.timer_paused:  # Modelの状態に基づく
-    #         print("Timer paused")
-    #         # 一時停止の文字を表示
-    #         self.paused_text = self.canvas.create_text(
-    #             24.0, 6.0, anchor="nw",
-    #             text="停止中",
-    #             fill="#222222",
-    #             font=("x12y12pxMaruMinya", 18)
-    #         )
-    #         # button_5の画像をbutton_6に切り替え
-    #         self.button_5.config(image=self.button_image_6)
-
-    #         # プログレスバーの色を変更
-    #         self.progress_bar_color = "#AA6868" if self.controller.timer_controller.is_work_session else "#5A638B"
-    #         self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
-    #     else:
-    #         print("Timer resumed")
-    #         # 一時停止の文字を削除
-    #         self.canvas.delete(self.paused_text)
-    #         # button_6の画像をbutton_5に切り替え
-    #         self.button_5.config(image=self.button_image_5)
-
-    #         # プログレスバーの色を元に戻す
-    #         self.progress_bar_color = "#BF3939" if self.controller.timer_controller.is_work_session else "#4E6BED"
-    #         self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
-
-
-
-
-        
-
 
 
     def update_timer(self):

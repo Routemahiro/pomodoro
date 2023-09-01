@@ -5,6 +5,7 @@ import time
 
 class PomodoroSession:
     def __init__(self):
+        
         with open('utils/config.json', 'r') as file:
             config = json.load(file)
             self.work_time = int(config["work_time"]) * 60
@@ -19,6 +20,7 @@ class PomodoroSession:
         self.cancel_timer = False
 
     def start_timer(self):
+        print("TimerController's start_timer is called")  # デバッグ用
         self.cancel_timer = False
         self.timer_paused = False
 

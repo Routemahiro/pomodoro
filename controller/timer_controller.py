@@ -16,23 +16,32 @@ class Timer:
         self.thread = None
 
     def start(self):
+        print("Timer class's start is called.")  # Debug
         self.running = True
         self.thread = threading.Thread(target=self.run)
+        self.thread.daemon = True  # Set the thread as a daemon
         self.thread.start()
 
     def stop(self):
+        print("Timer class's run is started.")  # Debug
         self.running = False
         if self.thread is not None:
             self.thread.join()
 
     def run(self):
-        while self.running:
-            time.sleep(self.interval)
-            if self.running:
-                self.callback()
+        try:
+            while self.running:
+                print("In Timer's run method.")  # Debug
+                time.sleep(self.interval)
+                if self.running:
+                    print("Calling callback.")  # Debug
+                    self.callback()
+        except Exception as e:
+            print(f"An exception occurred in Timer's run method: {e}")
 
 class PomodoroTimer:
     def __init__(self, session_id, work_time, break_time, work_callback, break_callback):
+        print("PomodoroTimer is initialized.")  # Debug
         self.session_id = session_id
         self.work_time = work_time
         self.break_time = break_time
@@ -48,14 +57,17 @@ class PomodoroTimer:
         self.text_generator = TextGenerator()
 
     def start(self):
+        print("PomodoroTimer's start is called.")  # Debug
         self.timer.start()
-        self.activity_timer.start()  # 活動タイマーを開始
+        print("Timer's start is called.")  # Debug
 
     def stop(self):
+        print("PomodoroTimer's stop is called.")  # Debug
         self.timer.stop()
         self.activity_timer.stop()  # 活動タイマーを停止
 
     def switch_mode(self):
+        print(f"PomodoroTimer's switch_mode is called. Current mode: {'Work' if self.work_mode else 'Break'}.")  # Debug
         if self.work_mode:
             self.timer.interval = self.break_time
             self.work_callback()
@@ -158,6 +170,12 @@ class TimerController:
         self.is_work_session = True
         self.session_count = 0
         self.timer_paused = False
+        self.remaining_time = self.work_time  # 追加
+
+        # PomodoroTimer インスタンスを作成
+        self.pomodoro_timer = PomodoroTimer(session_id=1, work_time=self.work_time, break_time=self.short_break_time,
+                                            work_callback=self.work_callback, break_callback=self.break_callback)
+        print("PomodoroTimer instance created in TimerController.")  # Debug
 
     def load_config(self):
         with open('utils/config.json', 'r') as file:
@@ -165,8 +183,17 @@ class TimerController:
             self.work_time = int(config["work_time"]) * 60
             self.short_break_time = int(config["short_break_time"]) * 60
             self.long_break_time = int(config["long_break_time"]) * 60
+    
+    def work_callback(self):
+        print("Work callback is called.")
+
+    def break_callback(self):
+        print("Break callback is called.")
 
     def start_timer(self):
+        print("TimerController's start_timer is called")  # Debug
+        self.pomodoro_timer.start()
+
         self.cancel_timer = False  # タイマーのキャンセルフラグをリセット
 
         # タイマーの時間をセッションに応じて設定
