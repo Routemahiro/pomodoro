@@ -29,6 +29,7 @@ class Timer:
             self.thread.join()
 
     def run(self):
+        print("In Timer's run method.")  # Debug
         try:
             while self.running:
                 print("In Timer's run method.")  # Debug
@@ -66,17 +67,18 @@ class PomodoroTimer:
         self.timer.stop()
         self.activity_timer.stop()  # 活動タイマーを停止
 
-    def switch_mode(self):
-        print(f"PomodoroTimer's switch_mode is called. Current mode: {'Work' if self.work_mode else 'Break'}.")  # Debug
-        if self.work_mode:
-            self.timer.interval = self.break_time
-            self.work_callback()
-        else:
-            self.timer.interval = self.work_time
-            self.break_callback()
-        self.work_mode = not self.work_mode
+    # def switch_mode(self):
+    #     print(f"PomodoroTimer's switch_mode is called. Current mode: {'Work' if self.work_mode else 'Break'}.")  # Debug
+    #     if self.work_mode:
+    #         self.timer.interval = self.break_time
+    #         self.work_callback()
+    #     else:
+    #         self.timer.interval = self.work_time
+    #         self.break_callback()
+    #     self.work_mode = not self.work_mode
 
     def switch_mode(self):
+        print("Switch_mode is called.")  # Debug
         if self.work_mode:
             # Work time has ended
             self.timer.interval = self.break_time
