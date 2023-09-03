@@ -41,7 +41,7 @@ class Timer:
             print(f"An exception occurred in Timer's run method: {e}")
 
 class PomodoroTimer:
-    def __init__(self, session_id, work_time, break_time, work_callback, break_callback):
+    def __init__(self, session_id, work_time, break_time, work_callback, break_callback,update_ui_callback):
         print("PomodoroTimer is initialized.")  # Debug
         self.session_id = session_id
         self.work_time = work_time
@@ -52,6 +52,7 @@ class PomodoroTimer:
         self.timer_session = PomodoroSession()
         self.work_mode = True
         self.activity_timer = Timer(60, self.update_work_activity)  # 1分ごとにupdate_work_activityを呼び出すタイマー
+        self.update_ui_callback = update_ui_callback  # UIを更新するためのコールバック
 
         # Create a DBHandler and TextGenerator instances
         self.db_handler = DBHandler()
@@ -113,6 +114,7 @@ class PomodoroTimer:
             # Call the break callback with the AI comment
             self.break_callback(ai_comment)
         self.work_mode = not self.work_mode
+        self.update_ui_callback()  # UIを更新
 
 
     def update_work_activity(self):
@@ -130,6 +132,8 @@ class PomodoroTimer:
 
         # Add the window activity to the database
         self.db_handler.add_window_activity(self.session_id, current_time, window_name, activity_genre)
+
+        self.update_ui_callback()  # UIを更新
 
     def get_window_name(self):
         # Implement the method to get the current window name
@@ -166,18 +170,29 @@ class PomodoroTimer:
 import json
 
 class TimerController:
-    def __init__(self):
+    def __init__(self,main_window):
         self.load_config()
         self.timer_seconds = self.work_time
         self.is_work_session = True
         self.session_count = 0
         self.timer_paused = False
         self.remaining_time = self.work_time  # 追加
+        update_ui_callback=self.update_ui  # この行を追加
 
         # PomodoroTimer インスタンスを作成
         self.pomodoro_timer = PomodoroTimer(session_id=1, work_time=self.work_time, break_time=self.short_break_time,
-                                            work_callback=self.work_callback, break_callback=self.break_callback)
+                                            work_callback=self.work_callback, break_callback=self.break_callback,update_ui_callback=self.update_ui)
         print("PomodoroTimer instance created in TimerController.")  # Debug
+
+        self.main_window = main_window  # MainWindowのインスタンスを保持
+        self.pomodoro_timer = PomodoroTimer(
+            "some_session_id",  # 仮のsession_id
+            self.work_time, 
+            self.short_break_time, 
+            self.work_callback, 
+            self.break_callback, 
+            self.update_ui
+        )
 
     def load_config(self):
         with open('utils/config.json', 'r') as file:
@@ -227,3 +242,7 @@ class TimerController:
             if not self.is_work_session:
                 self.session_count += 1
             self.cancel_timer = True
+
+    def update_ui(self):
+        # ここでUIの時間表示を更新するコードを書く
+        print("A")
