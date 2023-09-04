@@ -1,3 +1,4 @@
+# view/window_controller.py
 from controller.timer_controller import TimerController
 from view.main_window import MainWindow
 from view.settings_window import SettingsWindow  # 既存の設定ウィンドウ
@@ -5,8 +6,8 @@ from view.end_window import EndWindow  # 既存の終了ウィンドウ
 
 class WindowController:
     def __init__(self):
-        self.timer_controller = TimerController()
         self.main_window = MainWindow(self)
+        self.timer_controller = TimerController(self.main_window)  # MainWindowのインスタンスを渡す
 
     def start_timer(self):
         self.timer_controller.start_timer()

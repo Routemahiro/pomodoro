@@ -171,6 +171,7 @@ import json
 
 class TimerController:
     def __init__(self,main_window):
+        self.main_window = main_window  # この行を追加
         self.load_config()
         self.timer_seconds = self.work_time
         self.is_work_session = True
