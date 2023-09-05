@@ -17,10 +17,10 @@ class MainWindow:
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
 
-    def __init__(self, controller):
+    def __init__(self, root, controller=None):
         self.controller = controller
         print(f"Controller in MainWindow: {self.controller}")  # Debug
-        self.window = Tk()
+        self.window = root  # この行を変更
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
         self.progress_bar_length = 381.0
@@ -77,6 +77,8 @@ class MainWindow:
     def show(self):  # 新しいメソッド
         self.window.deiconify()  # メインウィンドウを表示
 
+    def set_controller(self, controller):
+        self.controller = controller
 
     def start_timer(self):
         print(f"Controller in start_timer: {self.controller}")  # Debug
@@ -85,6 +87,7 @@ class MainWindow:
 
         # スタートボタンの画像とコマンドを変更
         self.button_start.config(image=self.button_image_4, command=self.end_timer)
+        self.update_timer()
 
     def pause_timer(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
@@ -92,7 +95,7 @@ class MainWindow:
 
     def update_timer(self):
         self.controller.update_timer()  # TimerControllerに処理を委託
-        if self.controller.timer_session.timer_paused:
+        if self.controller.pomodoro_timer.timer_paused:
             self.window.after(1000, self.update_timer)
             return
 

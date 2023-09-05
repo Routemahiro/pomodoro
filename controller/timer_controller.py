@@ -68,15 +68,6 @@ class PomodoroTimer:
         self.timer.stop()
         self.activity_timer.stop()  # 活動タイマーを停止
 
-    # def switch_mode(self):
-    #     print(f"PomodoroTimer's switch_mode is called. Current mode: {'Work' if self.work_mode else 'Break'}.")  # Debug
-    #     if self.work_mode:
-    #         self.timer.interval = self.break_time
-    #         self.work_callback()
-    #     else:
-    #         self.timer.interval = self.work_time
-    #         self.break_callback()
-    #     self.work_mode = not self.work_mode
 
     def switch_mode(self):
         print("Switch_mode is called.")  # Debug
@@ -186,14 +177,6 @@ class TimerController:
         print("PomodoroTimer instance created in TimerController.")  # Debug
 
         self.main_window = main_window  # MainWindowのインスタンスを保持
-        self.pomodoro_timer = PomodoroTimer(
-            "some_session_id",  # 仮のsession_id
-            self.work_time, 
-            self.short_break_time, 
-            self.work_callback, 
-            self.break_callback, 
-            self.update_ui
-        )
 
     def load_config(self):
         with open('utils/config.json', 'r') as file:
