@@ -81,6 +81,7 @@ class MainWindow:
         self.controller = controller
 
     def start_timer(self):
+        print(f"MainWindow's remaining_time: {self.controller.pomodoro_timer.remaining_time}")
         print(f"Controller in start_timer: {self.controller}")  # Debug
         print("start_timer is called")
         self.controller.start_timer()  # Modelにタイマーの開始を依頼
@@ -95,22 +96,19 @@ class MainWindow:
 
     def update_timer(self):
         self.controller.update_timer()  # TimerControllerに処理を委託
-        if self.controller.pomodoro_timer.timer_paused:
-            self.window.after(1000, self.update_timer)
-            return
+        remaining_time = self.controller.pomodoro_timer.remaining_time
 
-        if self.controller.timer_session.cancel_timer:
-            return
-
-        remaining_time = self.controller.timer_session.remaining_time
         if remaining_time > 0:
             minutes, seconds = divmod(remaining_time, 60)
             time_str = f"{minutes:02}:{seconds:02}"
+            print(time_str)
             self.canvas.itemconfig(self.timer_text, text=time_str)
             self.update_progress_bar(remaining_time)
             self.window.after(1000, self.update_timer)
         else:
             self.window.after(1000, self.start_timer)
+
+
 
 
     # MainWindow クラス内の end_timer メソッドの変更
