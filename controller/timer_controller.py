@@ -63,10 +63,12 @@ class PomodoroTimer:
         self.text_generator = TextGenerator()
 
     def start(self):
-        # self.remaining_time = self.total_time
         print("PomodoroTimer's start is called.")  # Debug
-        self.timer = Timer(1, self.update_timer)  # 1秒ごとにupdate_timerを呼び出す
+        # タイマーが1秒ごとにupdate_timerを呼び出すように変更
+        self.timer = Timer(1, self.update_timer)
+        self.timer.start()
         print("Timer's start is called.")  # Debug
+
 
     def stop(self):
         print("PomodoroTimer's stop is called.")  # Debug

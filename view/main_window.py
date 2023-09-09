@@ -66,7 +66,7 @@ class MainWindow:
         self.session_count = 0
         initial_minutes, initial_seconds = divmod(self.work_time, 60)
         initial_time_str = f"{initial_minutes:02}:{initial_seconds:02}"
-        self.initial_timer_text = self.canvas.create_text(114.0, 32.0, anchor="nw", text=initial_time_str, fill="#222222", font=("x12y12pxMaruMinya", 80 * -1))
+        # self.initial_timer_text = self.canvas.create_text(114.0, 32.0, anchor="nw", text=initial_time_str, fill="#222222", font=("x12y12pxMaruMinya", 80 * -1))
         self.timer_text = self.canvas.create_text(114.0, 32.0, anchor="nw", text=initial_time_str, fill="#222222", font=("x12y12pxMaruMinya", 80 * -1))
 
     def open_settings(self):  # New method to open settings window
