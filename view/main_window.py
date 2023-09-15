@@ -122,11 +122,16 @@ class MainWindow:
         if not self.timer_paused:
             self.progress_bar_color = "#BF3939" if self.is_work_session else "#4E6BED"
 
+        # 作業時間か休憩時間かに応じてtimer_secondsを更新
+        self.timer_seconds = self.work_time if self.is_work_session else self.short_break_time
+
         progress_percentage = remaining_time / self.timer_seconds
         current_length = self.progress_bar_length * progress_percentage
+
         # 設定された色でプログレスバーを更新
         self.canvas.itemconfig(self.progress_bar, fill=self.progress_bar_color)
         self.canvas.coords(self.progress_bar, 40.0, 144.0, 40.0 + current_length, 156.0)
+
 
 
          

@@ -16,6 +16,10 @@ class Timer:
         self.thread = None
 
     def start(self):
+        if self.thread is not None and self.thread.is_alive():
+            print("Timer thread is already running!")
+            return
+
         print("Timer class's start is called.")  # Debug
         self.running = True
         self.thread = threading.Thread(target=self.run)
@@ -253,4 +257,8 @@ class TimerController:
 
     def update_ui(self):
         # ここでUIの時間表示を更新するコードを書く
-        print("A")
+        # MainWindowのis_work_sessionをPomodoroTimerのwork_modeに同期
+        self.main_window.is_work_session = self.pomodoro_timer.work_mode
+
+        # プログレスバーの色を更新
+        self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
