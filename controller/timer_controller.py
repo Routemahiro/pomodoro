@@ -53,7 +53,7 @@ class PomodoroTimer:
         self.break_time = break_time
         self.work_callback = work_callback
         self.break_callback = break_callback
-        self.timer = Timer(self.work_time, self.switch_mode)
+        self.timer = Timer(1, self.update_timer)  # インターバルを1秒に設定
         self.timer_session = PomodoroSession()
         self.work_mode = True
         self.activity_timer = Timer(60, self.update_work_activity)  # 1分ごとにupdate_work_activityを呼び出すタイマー
@@ -68,10 +68,10 @@ class PomodoroTimer:
 
     def start(self):
         print("PomodoroTimer's start is called.")  # Debug
-        # タイマーが1秒ごとにupdate_timerを呼び出すように変更
-        self.timer = Timer(1, self.update_timer)
+        # self.timer.interval = 1
         self.timer.start()
         print("Timer's start is called.")  # Debug
+
 
 
     def stop(self):
@@ -83,18 +83,15 @@ class PomodoroTimer:
         print(f"TimerController's remaining_time: {self.remaining_time}")
         if self.remaining_time > 0:
             self.remaining_time -= 1
-            if self.remaining_time == 0:
-                self.switch_mode()
         else:
-            # ここで他の必要な処理を実装する
-            pass
+            self.switch_mode()
 
 
     def switch_mode(self):
         print("Switch_mode is called.")  # Debug
         if self.work_mode:
             # Work time has ended
-            self.timer.interval = self.break_time
+            self.remaining_time = self.break_time
 
             # Get work activities from the database
             activities = self.db_handler.get_activities(self.session_id)
@@ -113,7 +110,7 @@ class PomodoroTimer:
             self.remaining_time = self.break_time
         else:
             # Break time has ended
-            self.timer.interval = self.work_time
+            self.remaining_time = self.work_time
 
             # Create a message for the AI
             messages = [
@@ -129,6 +126,7 @@ class PomodoroTimer:
             self.remaining_time = self.work_time
         self.work_mode = not self.work_mode
         self.update_ui_callback()  # UIを更新
+        self.start()  # タイマーを再起動
 
 
     def update_work_activity(self):
@@ -221,6 +219,7 @@ class TimerController:
 
     def start_timer(self):
         print("TimerController's start_timer is called")  # Debug
+        self.pomodoro_timer.stop()
         self.pomodoro_timer.start()
 
         self.cancel_timer = False  # タイマーのキャンセルフラグをリセット
