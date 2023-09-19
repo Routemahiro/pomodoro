@@ -8,6 +8,7 @@ import asyncio
 import aiohttp
 import datetime
 
+
 class Timer:
     def __init__(self, interval, callback):
         self.interval = interval
@@ -22,9 +23,15 @@ class Timer:
 
         print("Timer class's start is called.")  # Debug
         self.running = True
-        self.thread = threading.Thread(target=self.run)
+        self.thread = threading.Thread(target=self._start_event_loop)
         self.thread.daemon = True  # Set the thread as a daemon
         self.thread.start()
+
+    def _start_event_loop(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.run())
+        loop.close()
 
     def stop(self):
         print("Timer class's run is started.")  # Debug
@@ -32,16 +39,16 @@ class Timer:
         if self.thread is not None:
             self.thread.join()
 
-    def run(self):
+    async def run(self):
         print("In Timer's run method.")  # Debug
         try:
             while self.running:
                 print("In Timer's run method.")  # Debug
-                time.sleep(self.interval)
+                await asyncio.sleep(self.interval)
 
                 if self.running:
                     print("Calling callback.")  # Debug
-                    self.callback()
+                    await self.callback()
         except Exception as e:
             print(f"An exception occurred in Timer's run method: {e}")
 
@@ -79,15 +86,15 @@ class PomodoroTimer:
         self.timer.stop()
         self.activity_timer.stop()  # 活動タイマーを停止
 
-    def update_timer(self):
+    async def update_timer(self):
         print(f"TimerController's remaining_time: {self.remaining_time}")
         if self.remaining_time > 0:
             self.remaining_time -= 1
         else:
-            self.switch_mode()
+            await self.async_switch_mode()  # こちらを修正
 
 
-    def switch_mode(self):
+    async def switch_mode(self):
         print("Switch_mode is called.")  # Debug
         if self.work_mode:
             # Work time has ended
@@ -103,30 +110,24 @@ class PomodoroTimer:
             ]
 
             # Get a comment from the AI
-            ai_comment = self.text_generator.generate_message(messages)
+            
+            ai_comment = await self.text_generator.generate_message(messages)
 
             # Call the work callback with the AI comment
             self.work_callback(ai_comment)
             self.remaining_time = self.break_time
         else:
-            # Break time has ended
-            self.remaining_time = self.work_time
-
-            # Create a message for the AI
-            messages = [
-                {"role": "system", "content": "チャットAIです。会話します。"},
-                {"role": "user", "content": "休憩時間が終わりました"}
-            ]
-
             # Get a comment from the AI
-            ai_comment = self.text_generator.generate_message(messages)
+            ai_comment = await self.text_generator.generate_message(messages)
 
             # Call the break callback with the AI comment
             self.break_callback(ai_comment)
-            self.remaining_time = self.work_time
+
         self.work_mode = not self.work_mode
         self.update_ui_callback()  # UIを更新
-        self.start()  # タイマーを再起動
+
+    def switch_mode(self):
+        asyncio.run(self.async_switch_mode())
 
 
     def update_work_activity(self):
@@ -195,8 +196,9 @@ class TimerController:
 
 
         # PomodoroTimer インスタンスを作成
+    # PomodoroTimer インスタンスを作成
         self.pomodoro_timer = PomodoroTimer(session_id=1, work_time=self.work_time, break_time=self.short_break_time,
-                                            work_callback=self.work_callback, break_callback=self.break_callback,update_ui_callback=self.update_ui)
+                                        work_callback=self.work_callback, break_callback=self.break_callback, update_ui_callback=self.update_ui)
         print("PomodoroTimer instance created in TimerController.")  # Debug
 
         self.main_window = main_window  # MainWindowのインスタンスを保持
