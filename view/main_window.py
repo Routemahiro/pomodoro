@@ -97,6 +97,7 @@ class MainWindow:
     def update_timer(self):
         self.controller.update_timer()  # TimerControllerに処理を委託
         remaining_time = self.controller.pomodoro_timer.remaining_time
+        print(f"MainWindow's update_timer, remaining_time: {remaining_time}")  # Debug: この行を追加
 
         if remaining_time > 0:
             minutes, seconds = divmod(remaining_time, 60)
@@ -106,7 +107,8 @@ class MainWindow:
             self.update_progress_bar(remaining_time)
             self.window.after(1000, self.update_timer)
         else:
-            self.window.after(1000, self.start_timer)
+            self.is_work_session = not self.is_work_session  # セッションの種類を切り替える
+            self.window.after(1000, self.update_timer)  # こちらも再度update_timerを呼び出す
 
 
 
