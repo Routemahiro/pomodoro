@@ -184,6 +184,9 @@ class PomodoroTimer:
 
 # Main_windowから移動
 import json
+from plyer import notification
+
+
 
 class TimerController:
     def __init__(self,main_window):
@@ -216,10 +219,24 @@ class TimerController:
     def work_callback(self, ai_comment):
         print("Work callback is called.")
         print(f"AI Comment: {ai_comment}")
+        # titleの最大文字数は64
+        # messageの最大文字数は256
+        notification.notify(
+            title='さぎょおわ',
+            message=ai_comment,
+            app_name='PomodoroApp',
+            timeout=10
+        )
 
     def break_callback(self, ai_comment):
         print("Break callback is called.")
         print(f"AI Comment: {ai_comment}")
+        notification.notify(
+            title='きゅけおわ',
+            message=ai_comment,
+            app_name='PomodoroApp',
+            timeout=10
+        )
 
 
     def start_timer(self):
