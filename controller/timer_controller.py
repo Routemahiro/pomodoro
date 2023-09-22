@@ -113,76 +113,54 @@ class PomodoroTimer:
             await self.async_switch_mode()  # こちらを修正
 
 
-async def async_switch_mode(self):
-    print("Switch_mode is called.")  # Debug
-    if self.work_mode:
-        # Work time has ended
-        self.remaining_time = self.break_time
+    async def async_switch_mode(self):
+        print("Async Switch_mode is called.")  # Debug
+        if self.work_mode:
+            # Work time has ended
+            self.remaining_time = self.break_time
 
-        # Get work activities from the database
-        activities = self.db_handler.get_activities(self.session_id)
+            # Get work activities from the database
+            activities = self.db_handler.get_activities(self.session_id)
 
-        # Create a message for the AI
-        messages = [
-            {"role": "system", "content": "チャットAIです。会話します。"},
-            {"role": "user", "content": f"私は以下の作業を行いました：{activities}"}
-        ]
+            # Create a message for the AI
+            messages = [
+                {"role": "system", "content": "チャットAIです。会話します。"},
+                {"role": "user", "content": f"私は以下の作業を行いました：{activities}"}
+            ]
 
-        # Get a comment from the AI
-        ai_comment = await self.text_generator.generate_message(messages)
+            # Get a comment from the AI
+            ai_comment = await self.text_generator.generate_message(messages)
 
-        # Call the work callback with the AI comment
-        self.work_callback(ai_comment)
-        self.remaining_time = self.break_time
-    else:
-        # Break time has ended
-        self.remaining_time = self.work_time
+            # Call the work callback with the AI comment
+            self.work_callback(ai_comment)
+            self.remaining_time = self.break_time
+        else:
+            # Break time has ended
+            self.remaining_time = self.work_time
 
-        # Create a message for the AI
-        messages = [
-            {"role": "system", "content": "チャットAIです。会話します。"},
-            {"role": "user", "content": "休憩時間が終わりました"}
-        ]
+            # Create a message for the AI
+            messages = [
+                {"role": "system", "content": "チャットAIです。会話します。"},
+                {"role": "user", "content": "休憩時間が終わりました"}
+            ]
 
-        # Get a comment from the AI
-        # ai_comment = await self.text_generator.generate_message(messages)
+            # Get a comment from the AI
+            ai_comment = await self.text_generator.generate_message(messages)
 
-        # Call the break callback with the AI comment
-        self.break_callback(ai_comment)
-        self.remaining_time = self.work_time
-    self.work_mode = not self.work_mode
-    self.update_ui_callback()  # UIを更新
+            # Call the break callback with the AI comment
+            self.break_callback(ai_comment)
+            self.remaining_time = self.work_time
+        self.work_mode = not self.work_mode
+        self.update_ui_callback()  # UIを更新
 
 
     def switch_mode(self):
         asyncio.run(self.async_switch_mode())
 
-
-    def update_work_activity(self):
-        if not self.work_mode:
-            return
-
-        # Get the current window name
-        window_name = self.get_window_name()
-
-        # Estimate the activity genre
-        activity_genre = self.estimate_activity_genre(window_name)
-
-        # Get the current time
-        current_time = datetime.now()
-
-        # Add the window activity to the database
-        self.db_handler.add_window_activity(self.session_id, current_time, window_name, activity_genre)
-
-        self.update_ui_callback()  # UIを更新
-
     def get_window_name(self):
         # Implement the method to get the current window name
         pass
 
-    def estimate_activity_genre(self, window_name):
-        # Implement the method to estimate the activity genre from the window name
-        pass
 
     async def estimate_activity_genre(self, window_name):
         # Create a message for the AI
@@ -199,9 +177,6 @@ async def async_switch_mode(self):
             }) as response:
                 result = await response.json()
                 return result['choices'][0]['message']['content']
-            
-        # 非同期処理によって、AIにジャンルの推定をしてもらう
-        activity_genre = asyncio.run(self.estimate_activity_genre(window_name))
 
 
 
