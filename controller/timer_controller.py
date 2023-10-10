@@ -215,6 +215,9 @@ class TimerController:
             self.work_time = int(config["work_time"]) * 60
             self.short_break_time = int(config["short_break_time"]) * 60
             self.long_break_time = int(config["long_break_time"]) * 60
+            # self.work_time = int(config["work_time"]) * 2
+            # self.short_break_time = int(config["short_break_time"]) * 2
+            # self.long_break_time = int(config["long_break_time"]) * 2
     
     def work_callback(self, ai_comment):
         print("Work callback is called.")
