@@ -67,6 +67,7 @@ class PomodoroTimer:
         self.update_ui_callback = update_ui_callback  # UIを更新するためのコールバック
         self.timer_paused = False
         self.remaining_time = self.work_time
+        self.last_ai_comment = None  # Add this line to initialize ai_comment
 
 
         # Create a DBHandler and TextGenerator instances
@@ -96,6 +97,7 @@ class PomodoroTimer:
         self.db_handler.add_window_activity(self.session_id, current_time, window_name, activity_genre)
 
         self.update_ui_callback()  # UIを更新
+        
 
 
 
@@ -130,6 +132,7 @@ class PomodoroTimer:
 
             # Get a comment from the AI
             ai_comment = await self.text_generator.generate_message(messages)
+            self.last_ai_comment = ai_comment  # Save ai_comment here
 
             # Call the work callback with the AI comment
             self.work_callback(ai_comment)
@@ -146,10 +149,12 @@ class PomodoroTimer:
 
             # Get a comment from the AI
             ai_comment = await self.text_generator.generate_message(messages)
+            self.last_ai_comment = ai_comment  # Save ai_comment here
 
             # Call the break callback with the AI comment
             self.break_callback(ai_comment)
             self.remaining_time = self.work_time
+
         self.work_mode = not self.work_mode
         self.update_ui_callback()  # UIを更新
 
@@ -218,6 +223,12 @@ class TimerController:
             # self.work_time = int(config["work_time"]) * 2
             # self.short_break_time = int(config["short_break_time"]) * 2
             # self.long_break_time = int(config["long_break_time"]) * 2
+
+    def start_session(self):
+        self.pomodoro_timer.db_handler.start_session()
+
+    def end_session(self, ai_comment):
+        self.db_handler.end_session(ai_comment)
     
     def work_callback(self, ai_comment):
         print("Work callback is called.")
@@ -244,6 +255,7 @@ class TimerController:
 
     def start_timer(self):
         print("TimerController's start_timer is called")  # Debug
+        self.start_session()  # Start a new session in the database
         self.pomodoro_timer.stop()
         self.pomodoro_timer.start()
 
@@ -263,6 +275,8 @@ class TimerController:
         self.timer_paused = not self.timer_paused
 
     def end_timer(self):
+        ai_comment = self.pomodoro_timer.last_ai_comment
+        self.end_session(ai_comment)  # End the session in the database
         self.is_work_session = not self.is_work_session
         if not self.is_work_session:
             self.session_count += 1

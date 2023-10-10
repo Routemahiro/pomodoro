@@ -39,7 +39,25 @@ class DBHandler:
         activities = cursor.fetchall()
         return activities
 
-    # Other methods are the same...
+    def start_session(self):
+        cursor = self.connection.cursor()
+        start_time = datetime.now()
+        cursor.execute('''
+            INSERT INTO PomodoroSession (start_time)
+            VALUES (?)
+        ''', (start_time,))
+        self.connection.commit()
+        self.session_id = cursor.lastrowid  # Get the ID of the new session
+    
+    def end_session(self, ai_comment):
+        cursor = self.connection.cursor()
+        end_time = datetime.datetime.now()
+        cursor.execute('''
+            UPDATE PomodoroSession
+            SET end_time = ?, ai_comment = ?
+            WHERE session_id = ?
+        ''', (end_time, ai_comment, self.session_id))
+        self.connection.commit()
 
 def init_db():
     connection = sqlite3.connect(DB_PATH)
