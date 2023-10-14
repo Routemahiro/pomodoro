@@ -7,7 +7,9 @@ import time
 import asyncio
 import aiohttp
 import datetime
-
+from datetime import datetime
+import os
+import openai
 
 class Timer:
     def __init__(self, interval, callback):
@@ -40,7 +42,7 @@ class Timer:
             self.thread.join()
 
     async def run(self):
-        print("In Timer's run method.")  # Debug
+        print(f"Callback is: {self.callback}")
         try:
             while self.running:
                 print("In Timer's run method.")  # Debug
@@ -78,25 +80,33 @@ class PomodoroTimer:
         print("PomodoroTimer's start is called.")  # Debug
         # self.timer.interval = 1
         self.timer.start()
+        self.activity_timer.start()  # この行を追加
         print("Timer's start is called.")  # Debug
 
-    def update_work_activity(self):
-        if not self.work_mode:
-            return
 
-        # Get the current window name
-        window_name = self.get_window_name()
+    async def update_work_activity(self):
+        try:
+            print("update_work_activity is called")  # 追加
+            print(f"work_mode: {self.work_mode}")  # 追加
+            if not self.work_mode:
+                return
 
-        # Estimate the activity genre
-        activity_genre = self.estimate_activity_genre(window_name)
+            # Get the current window name
+            window_name = self.get_window_name()
 
-        # Get the current time
-        current_time = datetime.now()
+            # Estimate the activity genre
+            activity_genre = await self.estimate_activity_genre(window_name)
 
-        # Add the window activity to the database
-        self.db_handler.add_window_activity(self.session_id, current_time, window_name, activity_genre)
 
-        self.update_ui_callback()  # UIを更新
+            # Get the current time
+            current_time = datetime.now()
+
+            # Add the window activity to the database
+            self.db_handler.add_window_activity(self.session_id, current_time, window_name, activity_genre)
+
+            self.update_ui_callback()  # UIを更新
+        except Exception as e:
+            print(f"Error in update_work_activity: {e}")
         
 
 
@@ -168,20 +178,23 @@ class PomodoroTimer:
 
 
     async def estimate_activity_genre(self, window_name):
+        def __init__(self):
+            self.api_key = os.getenv('OPENAI_API_KEY')
+            openai.api_key = self.api_key
         # Create a message for the AI
         messages = [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"What kind of activity do you think the user is doing based on this window name? {window_name}"}
+            {"role": "system", "content": "あなたはユーザーの操作していたウィンドウ名から、作業ジャンルを一言で表す仕事を行います"},
+            {"role": "user", "content": f"右にお送りするウィンドウ名から、作業ジャンルを一言で表してください {window_name}"}
         ]
 
         # Send a request to the AI
-        async with aiohttp.ClientSession() as session:
-            async with session.post('https://api.openai.com/v1/engines/davinci/completions', json={
-                'messages': messages,
-                'max_tokens': 60
-            }) as response:
-                result = await response.json()
-                return result['choices'][0]['message']['content']
+        temperature=0
+        response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                temperature=temperature
+            )
+        return response["choices"][0]["message"]["content"]
 
 
 
