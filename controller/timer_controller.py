@@ -11,6 +11,8 @@ from datetime import datetime
 import os
 import openai
 
+openai.api_key = os.getenv('OPENAI_API_KEY')  # APIキーの設定を関数の外部に移動
+
 class Timer:
     def __init__(self, interval, callback):
         self.interval = interval
@@ -178,23 +180,22 @@ class PomodoroTimer:
 
 
     async def estimate_activity_genre(self, window_name):
-        def __init__(self):
-            self.api_key = os.getenv('OPENAI_API_KEY')
-            openai.api_key = self.api_key
-        # Create a message for the AI
         messages = [
             {"role": "system", "content": "あなたはユーザーの操作していたウィンドウ名から、作業ジャンルを一言で表す仕事を行います"},
             {"role": "user", "content": f"右にお送りするウィンドウ名から、作業ジャンルを一言で表してください {window_name}"}
         ]
 
-        # Send a request to the AI
-        temperature=0
-        response = openai.ChatCompletion.create(
+        try:
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
-                temperature=temperature
+                temperature=0
             )
-        return response["choices"][0]["message"]["content"]
+            print(response)  # レスポンスをログ出力
+            return response["choices"][0]["message"]["content"]
+        except Exception as e:
+            print(f"Error in estimate_activity_genre: {e}")
+            return None
 
 
 
