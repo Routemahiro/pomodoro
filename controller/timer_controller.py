@@ -10,6 +10,7 @@ import datetime
 from datetime import datetime
 import os
 import openai
+import pygetwindow as gw
 
 openai.api_key = os.getenv('OPENAI_API_KEY')  # APIキーの設定を関数の外部に移動
 
@@ -175,8 +176,14 @@ class PomodoroTimer:
         asyncio.run(self.async_switch_mode())
 
     def get_window_name(self):
-        # Implement the method to get the current window name
-        pass
+        # アクティブウィンドウの取得
+        window = gw.getActiveWindow()
+
+        # ウィンドウが見つからなかった場合のエラーハンドリング
+        if window == None:
+            return "No Active Window"
+        else:
+            return window.title
 
 
     async def estimate_activity_genre(self, window_name):
