@@ -10,6 +10,28 @@ class DBHandler:
     def __init__(self, db_path=DB_PATH):
         self.connection = self.create_connection(db_path)
         self.session_id = None  # セッションIDを追加
+
+    def get_activity_genre_by_window_name(self, window_name):
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            SELECT activity_genre
+            FROM ActivityGenre
+            WHERE window_name = ?
+        ''', (window_name,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+    
+    def add_activity_genre(self, window_name, activity_genre):
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute('''
+                INSERT INTO ActivityGenre (window_name, activity_genre)
+                VALUES (?, ?)
+                ON CONFLICT(window_name) DO UPDATE SET activity_genre = excluded.activity_genre;
+            ''', (window_name, activity_genre))
+            self.connection.commit()
+        except sqlite3.Error as e:
+            print(f"Error adding activity genre: {e}")
         
     def add_window_activity(self, session_id, time, window_name, activity_genre=None):
         cursor = self.connection.cursor()

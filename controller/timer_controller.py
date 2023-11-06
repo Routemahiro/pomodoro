@@ -187,6 +187,14 @@ class PomodoroTimer:
 
 
     async def estimate_activity_genre(self, window_name):
+        # Check the database first
+        activity_genre = self.db_handler.get_activity_genre_by_window_name(window_name)
+        
+        # If the genre is found in the database, return it without asking the AI
+        if activity_genre:
+            return activity_genre
+
+        # Otherwise, ask the AI
         messages = [
             {"role": "system", "content": "あなたはユーザーの操作していたウィンドウ名から、作業ジャンルを一言で表す仕事を行います"},
             {"role": "user", "content": f"右にお送りするウィンドウ名から、作業ジャンルを一言で表してください {window_name}"}
@@ -199,6 +207,8 @@ class PomodoroTimer:
                 temperature=0
             )
             print(response)  # レスポンスをログ出力
+            # Store the response in the database for future reference
+            self.db_handler.add_activity_genre(window_name, response["choices"][0]["message"]["content"])
             return response["choices"][0]["message"]["content"]
         except Exception as e:
             print(f"Error in estimate_activity_genre: {e}")
