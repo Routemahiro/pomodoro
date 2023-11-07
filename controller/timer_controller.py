@@ -73,6 +73,8 @@ class PomodoroTimer:
         self.timer_paused = False
         self.remaining_time = self.work_time
         self.last_ai_comment = None  # Add this line to initialize ai_comment
+        self.pomodoro_id = 0  # ポモドーロIDを初期化
+
 
 
         # Create a DBHandler and TextGenerator instances
@@ -131,6 +133,8 @@ class PomodoroTimer:
     async def async_switch_mode(self):
         print("Async Switch_mode is called.")  # Debug
         if self.work_mode:
+            # 作業セッションが終わったので、新しいポモドーロIDを生成
+            self.pomodoro_id += 1
             # Work time has ended
             self.remaining_time = self.break_time
 

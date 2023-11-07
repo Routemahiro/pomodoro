@@ -33,14 +33,14 @@ class DBHandler:
         except sqlite3.Error as e:
             print(f"Error adding activity genre: {e}")
         
-    def add_window_activity(self, session_id, time, window_name, activity_genre=None):
+    def add_window_activity(self, pomodoro_id, session_id, time, window_name, activity_genre=None):
         cursor = self.connection.cursor()
         print(f"Adding window activity: session_id={session_id}, time={time}, window_name={window_name}, activity_genre={activity_genre}")  # Add this line
         try:
             cursor.execute('''
-                INSERT INTO WindowActivity (session_id, time, window_name, activity_genre)
-                VALUES (?, ?, ?, ?)
-            ''', (session_id, time, window_name, activity_genre))
+                INSERT INTO WindowActivity (pomodoro_id, session_id, time, window_name, activity_genre)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (pomodoro_id, session_id, time, window_name, activity_genre))
             self.connection.commit()
             print("Window activity added successfully.")  # Add this line
         except sqlite3.Error as e:
@@ -62,6 +62,16 @@ class DBHandler:
             FROM WindowActivity
             WHERE session_id = ?
         ''', (session_id,))
+        activities = cursor.fetchall()
+        return activities
+    
+    def get_activities_by_pomodoro_id(self, pomodoro_id):
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            SELECT *
+            FROM WindowActivity
+            WHERE pomodoro_id = ?
+        ''', (pomodoro_id,))
         activities = cursor.fetchall()
         return activities
 
@@ -98,9 +108,12 @@ def init_db():
         )
     ''')
 
+    # Create 'WindowActivity' table with 'pomodoro_id' column
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS WindowActivity (
+            activity_id INTEGER PRIMARY KEY,
             session_id INTEGER,
+            pomodoro_id INTEGER,
             time DATETIME NOT NULL,
             window_name TEXT NOT NULL,
             activity_genre TEXT,
@@ -114,6 +127,8 @@ def init_db():
             activity_genre TEXT
         )
     ''')
+
+    
 
     connection.commit()
     connection.close()
