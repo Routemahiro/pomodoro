@@ -81,8 +81,6 @@ class MainWindow:
         self.controller = controller
 
     def start_timer(self):
-        print(f"MainWindow's remaining_time: {self.controller.pomodoro_timer.remaining_time}")
-        print(f"Controller in start_timer: {self.controller}")  # Debug
         print("start_timer is called")
         self.controller.start_timer()  # Modelにタイマーの開始を依頼
 

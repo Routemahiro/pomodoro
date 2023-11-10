@@ -21,6 +21,12 @@ class DBHandler:
         result = cursor.fetchone()
         return result[0] if result else None
     
+    def get_last_session_id(self):
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT MAX(session_id) FROM PomodoroSession")
+        result = cursor.fetchone()
+        return result[0] if result and result[0] is not None else 0
+    
     def add_activity_genre(self, window_name, activity_genre):
         cursor = self.connection.cursor()
         try:
@@ -55,25 +61,26 @@ class DBHandler:
             print(f"Error connecting to database: {e}")
         return connection
     
-    def get_activities(self, session_id):
+    def get_activities(self, session_id, pomodoro_id):
         cursor = self.connection.cursor()
         cursor.execute('''
             SELECT *
             FROM WindowActivity
-            WHERE session_id = ?
-        ''', (session_id,))
+            WHERE session_id = ? AND pomodoro_id = ?
+        ''', (session_id, pomodoro_id))
         activities = cursor.fetchall()
         return activities
     
-    def get_activities_by_pomodoro_id(self, pomodoro_id):
-        cursor = self.connection.cursor()
-        cursor.execute('''
-            SELECT *
-            FROM WindowActivity
-            WHERE pomodoro_id = ?
-        ''', (pomodoro_id,))
-        activities = cursor.fetchall()
-        return activities
+    # 謎の関数どこでも使われてないから、多分いらない
+    # def get_activities_by_pomodoro_id(self, pomodoro_id):
+    #     cursor = self.connection.cursor()
+    #     cursor.execute('''
+    #         SELECT *
+    #         FROM WindowActivity
+    #         WHERE pomodoro_id = ?
+    #     ''', (pomodoro_id,))
+    #     activities = cursor.fetchall()
+    #     return activities
 
     def start_session(self):
         cursor = self.connection.cursor()

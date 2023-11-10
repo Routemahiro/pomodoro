@@ -73,7 +73,7 @@ class PomodoroTimer:
         self.timer_paused = False
         self.remaining_time = self.work_time
         self.last_ai_comment = None  # Add this line to initialize ai_comment
-        self.pomodoro_id = 0  # ポモドーロIDを初期化
+        self.pomodoro_id = 1  # ポモドーロIDを初期化
 
 
 
@@ -107,7 +107,7 @@ class PomodoroTimer:
             current_time = datetime.now()
 
             # Add the window activity to the database
-            self.db_handler.add_window_activity(self.session_id, current_time, window_name, activity_genre)
+            self.db_handler.add_window_activity(self.pomodoro_id,self.session_id, current_time, window_name, activity_genre)
 
             self.update_ui_callback()  # UIを更新
         except Exception as e:
@@ -123,7 +123,6 @@ class PomodoroTimer:
         self.activity_timer.stop()  # 活動タイマーを停止
 
     async def update_timer(self):
-        print(f"TimerController's remaining_time: {self.remaining_time}")
         if self.remaining_time > 0:
             self.remaining_time -= 1
         else:
@@ -133,14 +132,15 @@ class PomodoroTimer:
     async def async_switch_mode(self):
         print("Async Switch_mode is called.")  # Debug
         if self.work_mode:
-            # 作業セッションが終わったので、新しいポモドーロIDを生成
-            self.pomodoro_id += 1
             # Work time has ended
             self.remaining_time = self.break_time
 
             # Get work activities from the database
-            activities = self.db_handler.get_activities(self.session_id)
+            activities = self.db_handler.get_activities(self.session_id, self.pomodoro_id)
 
+            
+            # 作業セッションが終わったので、新しいポモドーロIDを生成
+            self.pomodoro_id += 1
             # Create a message for the AI
             messages = [
                 {"role": "system", "content": "チャットAIです。会話します。"},
@@ -243,8 +243,13 @@ class TimerController:
 
         # PomodoroTimer インスタンスを作成
     # PomodoroTimer インスタンスを作成
-        self.pomodoro_timer = PomodoroTimer(session_id=1, work_time=self.work_time, break_time=self.short_break_time,
-                                        work_callback=self.work_callback, break_callback=self.break_callback, update_ui_callback=self.update_ui)
+        db_handler = DBHandler()  # DBHandler インスタンスの作成
+        last_session_id = db_handler.get_last_session_id()  # 最後のセッション ID を取得
+        new_session_id = last_session_id + 1  # 新しいセッション ID
+
+        self.pomodoro_timer = PomodoroTimer(session_id=new_session_id, work_time=self.work_time, break_time=self.short_break_time,
+                                            work_callback=self.work_callback, break_callback=self.break_callback, update_ui_callback=self.update_ui)
+
         print("PomodoroTimer instance created in TimerController.")  # Debug
 
         self.main_window = main_window  # MainWindowのインスタンスを保持
