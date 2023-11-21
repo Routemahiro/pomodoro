@@ -38,17 +38,17 @@ class PomodoroSession:
     def pause_timer(self):
         self.timer_paused = not self.timer_paused
 
-    def update_timer(self):
-        if self.timer_paused or self.cancel_timer:
-            return
+    # def update_timer(self):
+    #     if self.timer_paused or self.cancel_timer:
+    #         return
 
-        if self.remaining_time > 0:
-            self.remaining_time -= 1
-        else:
-            self.is_work_session = not self.is_work_session
-            if not self.is_work_session:
-                self.session_count += 1
-            self.cancel_timer = True
+    #     if self.remaining_time > 0:
+    #         self.remaining_time -= 1
+    #     else:
+    #         self.is_work_session = not self.is_work_session
+    #         if not self.is_work_session:
+    #             self.session_count += 1
+    #         self.cancel_timer = True
 
     def reset_timer(self):
         self.cancel_timer = True
