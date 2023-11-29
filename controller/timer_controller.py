@@ -11,6 +11,7 @@ from datetime import datetime
 import os
 import openai
 import pygetwindow as gw
+from threading import Lock
 
 openai.api_key = os.getenv('OPENAI_API_KEY')  # APIキーの設定を関数の外部に移動
 
@@ -66,6 +67,7 @@ class PomodoroTimer:
         self.work_callback = work_callback
         self.break_callback = break_callback
         self.timer = Timer(1, self.update_timer)  # インターバルを1秒に設定
+        self.lock = Lock()  # ロックを初期化
         self.timer_session = PomodoroSession()
         self.work_mode = True
         self.activity_timer = Timer(60, self.update_work_activity)  # 1分ごとにupdate_work_activityを呼び出すタイマー
@@ -322,16 +324,19 @@ class TimerController:
             self.session_count += 1
 
     def update_timer(self):
+        # trueだったときの動作を確認したら、いいかも？
         if self.timer_paused or self.cancel_timer:
             return
 
-        if self.remaining_time > 0:
-            self.remaining_time -= 1
-        else:
-            self.is_work_session = not self.is_work_session
-            if not self.is_work_session:
-                self.session_count += 1
-            self.cancel_timer = True
+        with self.lock:  # ロックを取得
+            if self.remaining_time > 0:
+                self.remaining_time -= 1
+
+            else:
+                self.is_work_session = not self.is_work_session
+                if not self.is_work_session:
+                    self.session_count += 1
+                self.cancel_timer = True
 
     def update_ui(self):
         # ここでUIの時間表示を更新するコードを書く
