@@ -125,57 +125,59 @@ class PomodoroTimer:
         self.activity_timer.stop()  # 活動タイマーを停止
 
     async def update_timer(self):
-        if self.remaining_time > 0:
-            self.remaining_time -= 1
-        else:
-            await self.async_switch_mode()  # こちらを修正
+        with self.lock:  # ロックを取得
+            if self.remaining_time > 0:
+                self.remaining_time -= 1
+            else:
+                await self.async_switch_mode()  # こちらを修正
 
 
     async def async_switch_mode(self):
-        print("Async Switch_mode is called.")  # Debug
-        if self.work_mode:
-            # Work time has ended
-            self.remaining_time = self.break_time
+        with self.lock:
+            print("Async Switch_mode is called.")  # Debug
+            if self.work_mode:
+                # Work time has ended
+                self.remaining_time = self.break_time
 
-            # Get work activities from the database
-            activities = self.db_handler.get_activities(self.session_id, self.pomodoro_id)
+                # Get work activities from the database
+                activities = self.db_handler.get_activities(self.session_id, self.pomodoro_id)
 
-            
-            # 作業セッションが終わったので、新しいポモドーロIDを生成
-            self.pomodoro_id += 1
-            # Create a message for the AI
-            messages = [
-                {"role": "system", "content": "チャットAIです。会話します。"},
-                {"role": "user", "content": f"私は以下の作業を行いました：{activities}"}
-            ]
+                
+                # 作業セッションが終わったので、新しいポモドーロIDを生成
+                self.pomodoro_id += 1
+                # Create a message for the AI
+                messages = [
+                    {"role": "system", "content": "チャットAIです。会話します。"},
+                    {"role": "user", "content": f"私は以下の作業を行いました：{activities}"}
+                ]
 
-            # Get a comment from the AI
-            ai_comment = await self.text_generator.generate_message(messages)
-            self.last_ai_comment = ai_comment  # Save ai_comment here
+                # Get a comment from the AI
+                ai_comment = await self.text_generator.generate_message(messages)
+                self.last_ai_comment = ai_comment  # Save ai_comment here
 
-            # Call the work callback with the AI comment
-            self.work_callback(ai_comment)
-            self.remaining_time = self.break_time
-        else:
-            # Break time has ended
-            self.remaining_time = self.work_time
+                # Call the work callback with the AI comment
+                self.work_callback(ai_comment)
+                self.remaining_time = self.break_time
+            else:
+                # Break time has ended
+                self.remaining_time = self.work_time
 
-            # Create a message for the AI
-            messages = [
-                {"role": "system", "content": "チャットAIです。会話します。"},
-                {"role": "user", "content": "休憩時間が終わりました"}
-            ]
+                # Create a message for the AI
+                messages = [
+                    {"role": "system", "content": "チャットAIです。会話します。"},
+                    {"role": "user", "content": "休憩時間が終わりました"}
+                ]
 
-            # Get a comment from the AI
-            ai_comment = await self.text_generator.generate_message(messages)
-            self.last_ai_comment = ai_comment  # Save ai_comment here
+                # Get a comment from the AI
+                ai_comment = await self.text_generator.generate_message(messages)
+                self.last_ai_comment = ai_comment  # Save ai_comment here
 
-            # Call the break callback with the AI comment
-            self.break_callback(ai_comment)
-            self.remaining_time = self.work_time
+                # Call the break callback with the AI comment
+                self.break_callback(ai_comment)
+                self.remaining_time = self.work_time
 
-        self.work_mode = not self.work_mode
-        self.update_ui_callback()  # UIを更新
+            self.work_mode = not self.work_mode
+            self.update_ui_callback()  # UIを更新
 
 
     def switch_mode(self):
@@ -227,7 +229,7 @@ class PomodoroTimer:
 # Main_windowから移動
 import json
 from plyer import notification
-
+from threading import Lock
 
 
 class TimerController:
@@ -240,6 +242,7 @@ class TimerController:
         self.timer_paused = False
         self.remaining_time = self.work_time  # 追加
         update_ui_callback=self.update_ui  # この行を追加
+        self.lock = Lock()  # ロックを初期化
 
 
 
@@ -315,6 +318,7 @@ class TimerController:
 
     def pause_timer(self):
         self.timer_paused = not self.timer_paused
+        print(self.timer_paused)
 
     def end_timer(self):
         ai_comment = self.pomodoro_timer.last_ai_comment
@@ -324,11 +328,11 @@ class TimerController:
             self.session_count += 1
 
     def update_timer(self):
-        # trueだったときの動作を確認したら、いいかも？
-        if self.timer_paused or self.cancel_timer:
-            return
-
         with self.lock:  # ロックを取得
+
+            if self.timer_paused or self.cancel_timer:
+                return
+            
             if self.remaining_time > 0:
                 self.remaining_time -= 1
 
