@@ -2,15 +2,15 @@
 
 import json
 import time
+from utils.config import load_config  # This line was added
 
 class PomodoroSession:
     def __init__(self):
         
-        with open('utils/config.json', 'r') as file:
-            config = json.load(file)
-            self.work_time = int(config["work_time"]) * 60
-            self.short_break_time = int(config["short_break_time"]) * 60
-            self.long_break_time = int(config["long_break_time"]) * 60
+        config = load_config()  # This line was modified
+        self.work_time = int(config["work_time"]) * 60
+        self.short_break_time = int(config["short_break_time"]) * 60
+        self.long_break_time = int(config["long_break_time"]) * 60
 
         self.timer_seconds = self.work_time
         self.remaining_time = self.timer_seconds

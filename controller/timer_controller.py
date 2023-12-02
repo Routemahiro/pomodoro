@@ -11,6 +11,7 @@ from datetime import datetime
 import os
 import openai
 import pygetwindow as gw
+from utils.config import load_config  # Added this line
 
 openai.api_key = os.getenv('OPENAI_API_KEY')  # APIキーの設定を関数の外部に移動
 
@@ -42,7 +43,7 @@ class Timer:
         print("Timer class's run is started.")  # Debug
         self.running = False
         if self.thread is not None:
-            self.thread.join()
+            self.thread.join()  # Wait for the thread to finish
 
     async def run(self):
         print(f"Callback is: {self.callback}")
@@ -74,8 +75,7 @@ class PomodoroTimer:
         self.remaining_time = self.work_time
         self.last_ai_comment = None  # Add this line to initialize ai_comment
         self.pomodoro_id = 1  # ポモドーロIDを初期化
-
-
+        self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock
 
         # Create a DBHandler and TextGenerator instances
         self.db_handler = DBHandler()
@@ -88,6 +88,9 @@ class PomodoroTimer:
         self.activity_timer.start()  # この行を追加
         print("Timer's start is called.")  # Debug
 
+    def pause_timer(self):
+        with self.timer_paused_lock:  # Acquire the lock
+            self.timer_paused = not self.timer_paused
 
     async def update_work_activity(self):
         try:
@@ -112,10 +115,6 @@ class PomodoroTimer:
             self.update_ui_callback()  # UIを更新
         except Exception as e:
             print(f"Error in update_work_activity: {e}")
-        
-
-
-
 
     def stop(self):
         print("PomodoroTimer's stop is called.")  # Debug
@@ -123,11 +122,15 @@ class PomodoroTimer:
         self.activity_timer.stop()  # 活動タイマーを停止
 
     async def update_timer(self):
+        with self.timer_paused_lock:  # Acquire the lock
+            if self.timer_paused:
+                print("Timer is paused in update_timer.")  # Debug
+                return
+
         if self.remaining_time > 0:
             self.remaining_time -= 1
         else:
             await self.async_switch_mode()  # こちらを修正
-
 
     async def async_switch_mode(self):
         print("Async Switch_mode is called.")  # Debug
@@ -175,7 +178,6 @@ class PomodoroTimer:
         self.work_mode = not self.work_mode
         self.update_ui_callback()  # UIを更新
 
-
     def switch_mode(self):
         asyncio.run(self.async_switch_mode())
 
@@ -188,7 +190,6 @@ class PomodoroTimer:
             return "No Active Window"
         else:
             return window.title
-
 
     async def estimate_activity_genre(self, window_name):
         # Check the database first
@@ -218,15 +219,9 @@ class PomodoroTimer:
             print(f"Error in estimate_activity_genre: {e}")
             return None
 
-
-
-
-
 # Main_windowから移動
 import json
 from plyer import notification
-
-
 
 class TimerController:
     def __init__(self,main_window):
@@ -238,8 +233,7 @@ class TimerController:
         self.timer_paused = False
         self.remaining_time = self.work_time  # 追加
         update_ui_callback=self.update_ui  # この行を追加
-
-
+        self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock
 
         # PomodoroTimer インスタンスを作成
     # PomodoroTimer インスタンスを作成
@@ -255,14 +249,10 @@ class TimerController:
         self.main_window = main_window  # MainWindowのインスタンスを保持
 
     def load_config(self):
-        with open('utils/config.json', 'r') as file:
-            config = json.load(file)
-            self.work_time = int(config["work_time"]) * 60
-            self.short_break_time = int(config["short_break_time"]) * 60
-            self.long_break_time = int(config["long_break_time"]) * 60
-            # self.work_time = int(config["work_time"]) * 2
-            # self.short_break_time = int(config["short_break_time"]) * 2
-            # self.long_break_time = int(config["long_break_time"]) * 2
+        config = load_config()  # Modified this line
+        self.work_time = int(config["work_time"]) * 60
+        self.short_break_time = int(config["short_break_time"]) * 60
+        self.long_break_time = int(config["long_break_time"]) * 60
 
     def start_session(self):
         self.pomodoro_timer.db_handler.start_session()
@@ -292,7 +282,6 @@ class TimerController:
             timeout=10
         )
 
-
     def start_timer(self):
         print("TimerController's start_timer is called")  # Debug
         self.start_session()  # Start a new session in the database
@@ -310,9 +299,9 @@ class TimerController:
             else:
                 self.timer_seconds = self.short_break_time
 
-
     def pause_timer(self):
-        self.timer_paused = not self.timer_paused
+        print("Pause button clicked")
+        self.pomodoro_timer.pause_timer()  # Make sure this line is present
 
     def end_timer(self):
         ai_comment = self.pomodoro_timer.last_ai_comment
@@ -322,7 +311,8 @@ class TimerController:
             self.session_count += 1
 
     def update_timer(self):
-        if self.timer_paused or self.cancel_timer:
+        if self.pomodoro_timer.timer_paused:
+            print("MainWindow's timer is paused.")  # Debug
             return
 
         if self.remaining_time > 0:

@@ -114,7 +114,7 @@ class MainWindow:
     # MainWindow クラス内の end_timer メソッドの変更
     def end_timer(self):
         print("おしまいボタンがクリックされました")
-        self.pause_timer()  # タイマーを一時停止
+        self.controller.pause_timer()  # タイマーを一時停止
         EndQuestionWindow(self)  # 新しいウィンドウを表示
 
     def update_progress_bar(self, remaining_time):

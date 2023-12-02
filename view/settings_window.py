@@ -4,6 +4,7 @@ from pathlib import Path
 from tkinter import Tk, Canvas, StringVar, OptionMenu, Button, PhotoImage,Toplevel
 from utils.config import save_config
 
+
 OUTPUT_PATH = Path.cwd()
 ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "setting"
 options = [str(i) for i in range(1, 61)]  # Options for the dropdowns
@@ -137,7 +138,7 @@ class SettingsWindow:
         work_time = self.var1.get()
         short_break_time = self.var2.get()
         long_break_time = self.var3.get()
-        save_config(work_time, short_break_time, long_break_time)
+        save_config(work_time, short_break_time, long_break_time)  # この行を修正
         print("Settings saved!")
 
     def go_back_to_main(self):
