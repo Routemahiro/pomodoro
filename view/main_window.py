@@ -174,7 +174,7 @@ class EndQuestionWindow:
         canvas = Canvas(self.window, bg="#D9D9D9", height=200, width=300, bd=0, highlightthickness=0, relief="ridge")
         canvas.place(x=0, y=0)
 
-        # button_1
+        # button_1（こっちは続けるボタン）
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
         # button_1 の command 属性の変更
         self.button_1 = Button(self.window, image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.resume_timer, relief="flat")
@@ -182,7 +182,7 @@ class EndQuestionWindow:
         self.button_1_window = canvas.create_window(0.0, 140.0, anchor="nw", window=self.button_1)
 
 
-        # button_2
+        # button_2（こっちは終了ボタン）
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
         button_2 = Button(self.window, image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.open_end_window, relief="flat")
         button_2.image = self.button_image_2  # 画像への参照を保持
