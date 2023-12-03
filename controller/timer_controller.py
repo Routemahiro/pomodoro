@@ -61,6 +61,7 @@ class Timer:
 class PomodoroTimer:
     def __init__(self, session_id, work_time, break_time, work_callback, break_callback,update_ui_callback):
         print("PomodoroTimer is initialized.")  # Debug
+        self.cancel_timer = False
         self.session_id = session_id
         self.work_time = work_time
         self.break_time = break_time
@@ -90,6 +91,16 @@ class PomodoroTimer:
         self.activity_timer.start()  # この行を追加
         print("Timer's start is called.")  # Debug
 
+    def decrement_remaining_time(self):
+        with self.lock:
+            self.remaining_time -= 1
+
+    def get_remaining_time(self):
+        print(self.remaining_time)
+        return self.remaining_time
+
+    def is_timer_paused(self):
+        return self.timer_paused
 
     async def update_work_activity(self):
         try:
@@ -125,7 +136,11 @@ class PomodoroTimer:
         self.activity_timer.stop()  # 活動タイマーを停止
 
     async def update_timer(self):
+        print("update_timer called")  # デバッグログを追加
         with self.lock:  # ロックを取得
+            if self.timer_paused or self.cancel_timer:
+                return
+
             if self.remaining_time > 0:
                 self.remaining_time -= 1
             else:
@@ -133,6 +148,8 @@ class PomodoroTimer:
 
 
     async def async_switch_mode(self):
+
+        print("async_switch_mode called")  # デバッグログを追加
         with self.lock:
             print("Async Switch_mode is called.")  # Debug
             if self.work_mode:
@@ -239,8 +256,6 @@ class TimerController:
         self.timer_seconds = self.work_time
         self.is_work_session = True
         self.session_count = 0
-        self.timer_paused = False
-        self.remaining_time = self.work_time  # 追加
         update_ui_callback=self.update_ui  # この行を追加
         self.lock = Lock()  # ロックを初期化
 
@@ -317,8 +332,7 @@ class TimerController:
 
 
     def pause_timer(self):
-        self.timer_paused = not self.timer_paused
-        print(self.timer_paused)
+        self.pomodoro_timer.pause_timer()
 
     def end_timer(self):
         ai_comment = self.pomodoro_timer.last_ai_comment
@@ -328,14 +342,13 @@ class TimerController:
             self.session_count += 1
 
     def update_timer(self):
-        with self.lock:  # ロックを取得
-
-            if self.timer_paused or self.cancel_timer:
+        with self.lock:
+            if self.pomodoro_timer.is_timer_paused() or self.cancel_timer:
                 return
-            
-            if self.remaining_time > 0:
-                self.remaining_time -= 1
 
+            remaining_time = self.pomodoro_timer.get_remaining_time()
+            if remaining_time > 0:
+                self.pomodoro_timer.decrement_remaining_time()
             else:
                 self.is_work_session = not self.is_work_session
                 if not self.is_work_session:
@@ -343,9 +356,10 @@ class TimerController:
                 self.cancel_timer = True
 
     def update_ui(self):
-        # ここでUIの時間表示を更新するコードを書く
-        # MainWindowのis_work_sessionをPomodoroTimerのwork_modeに同期
         self.main_window.is_work_session = self.pomodoro_timer.work_mode
-
-        # プログレスバーの色を更新
-        self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
+        remaining_time = self.pomodoro_timer.get_remaining_time()
+        minutes, seconds = divmod(remaining_time, 60)
+        time_str = f"{minutes:02}:{seconds:02}"
+        self.main_window.update_timer_text(time_str)
+        self.main_window.update_progress_bar(remaining_time)
+        print("update_ui")

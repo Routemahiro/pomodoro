@@ -74,6 +74,10 @@ class MainWindow:
         settings = SettingsWindow(self, self.window)  # self.windowを渡す
         settings.run()
 
+
+    def update_timer_text(self, time_str):
+        self.canvas.itemconfig(self.timer_text, text=time_str)
+        
     def show(self):  # 新しいメソッド
         self.window.deiconify()  # メインウィンドウを表示
 
@@ -93,15 +97,8 @@ class MainWindow:
 
 
     def update_timer(self):
-        self.controller.update_timer()  # TimerControllerに処理を委託
-        remaining_time = self.controller.pomodoro_timer.remaining_time
-        print(f"MainWindow's update_timer, remaining_time: {remaining_time}")  # Debug: この行を追加
-
-        if remaining_time > 0:
-            minutes, seconds = divmod(remaining_time, 60)
-            time_str = f"{minutes:02}:{seconds:02}"
-            print(time_str)
-            self.canvas.itemconfig(self.timer_text, text=time_str)
+        if self.controller.pomodoro_timer.get_remaining_time() > 0:
+            remaining_time = self.controller.pomodoro_timer.get_remaining_time()
             self.update_progress_bar(remaining_time)
             self.window.after(1000, self.update_timer)
         else:

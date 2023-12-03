@@ -53,3 +53,5 @@ class PomodoroSession:
     def reset_timer(self):
         self.cancel_timer = True
         self.remaining_time = self.timer_seconds
+
+
