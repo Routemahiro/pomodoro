@@ -1,5 +1,6 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, PhotoImage, Toplevel, Button
+import sys  # Added this line
 
 
 OUTPUT_PATH = Path.cwd()
@@ -57,6 +58,7 @@ class EndWindow:
     def quit_program(self):
         # プログラムを終了する
         self.window.quit()
+        sys.exit()  # Added this line
 
     def run(self):
         self.window.mainloop()
