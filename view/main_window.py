@@ -88,8 +88,26 @@ class MainWindow:
         self.button_start.config(image=self.button_image_4, command=self.end_timer)
         self.update_timer()
 
+        # button_2とbutton_3を非表示にする
+        self.button_2.place_forget()
+        self.button_3.place_forget()
+        # button_5をbutton_2の位置に表示する
+        self.button_5 = Button(image=self.button_image_5, borderwidth=0, highlightthickness=0, command=self.pause_timer, relief="flat")
+        self.button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
+
+
     def pause_timer(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
+
+        # ウィンドウ左上に「一時停止中」と表示
+        self.canvas.create_text(10, 10, anchor="nw", text="一時停止中", fill="#222222", font=("Helvetica", 16))
+
+        # button_5を非表示
+        self.button_5.place_forget()
+
+        # button_5と同じ位置に、button_6を表示
+        self.button_6 = Button(image=self.button_image_6, borderwidth=0, highlightthickness=0, command=self.resume_timer, relief="flat")
+        self.button_6.place(x=416.0, y=210.0, width=60.0, height=60.0)
 
 
     def update_timer(self):
