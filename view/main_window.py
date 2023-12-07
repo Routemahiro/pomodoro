@@ -1,5 +1,5 @@
 #view/main_window.py
-from tkinter import Tk, Canvas, Button, PhotoImage,Toplevel
+from tkinter import Tk, Canvas, Button, PhotoImage,Toplevel, DISABLED, NORMAL
 from pathlib import Path
 from view.settings_window import SettingsWindow  # 設定ウィンドウのクラスをインポート
 from view.end_window import EndWindow
@@ -35,6 +35,7 @@ class MainWindow:
         # ボタン画像のロード
         self.button_image_1 = PhotoImage(file=self.relative_to_assets("button_1.png"))
         self.button_image_4 = PhotoImage(file=self.relative_to_assets("button_4.png"))
+        self.button_image_4_dark = PhotoImage(file=self.relative_to_assets("button_4_dark.png"))
         self.button_image_3 = PhotoImage(file=self.relative_to_assets("button_3.png"))
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
         self.button_image_5 = PhotoImage(file=self.relative_to_assets("button_5.png"))
@@ -97,6 +98,7 @@ class MainWindow:
 
     def pause_timer(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
+        self.toggle_start_button()
 
     def pause_timer2(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
@@ -117,6 +119,14 @@ class MainWindow:
             self.button_5.place_forget()
             self.button_6 = Button(image=self.button_image_6, borderwidth=0, highlightthickness=0, command=self.pause_timer2, relief="flat")
             self.button_6.place(x=416.0, y=210.0, width=60.0, height=70.0)
+
+        self.toggle_start_button()
+
+    def toggle_start_button(self):
+        if self.button_start['state'] == NORMAL:
+            self.button_start.config(image=self.button_image_4_dark, state=DISABLED)
+        else:
+            self.button_start.config(image=self.button_image_4, state=NORMAL, command=self.end_timer)
 
 
     def update_timer(self):
