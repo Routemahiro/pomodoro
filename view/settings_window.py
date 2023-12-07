@@ -1,16 +1,14 @@
-# view\seettings_window.py
-"""設定画面でできること：ポモドーロセッションの作業時間や休憩時間の長さを設定"""
+# view\settings_window.py
+import json
 from pathlib import Path
 from tkinter import Tk, Canvas, StringVar, OptionMenu, Button, PhotoImage,Toplevel
 from utils.config import save_config
-
 
 OUTPUT_PATH = Path.cwd()
 ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "setting"
 options = [str(i) for i in range(1, 61)]  # Options for the dropdowns
 
 class SettingsWindow:
-
 
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
@@ -32,18 +30,26 @@ class SettingsWindow:
 
         canvas.place(x=0, y=0)
 
+        # Load settings from config.json
+        with open(Path("utils/config.json"), "r") as f:
+            config = json.load(f)
+
+        work_time = str(config["work_time"])
+        short_break_time = str(config["short_break_time"])
+        long_break_time = str(config["long_break_time"])
+
         self.var1 = StringVar(self.window)
-        self.var1.set(options[24])  # default value
+        self.var1.set(work_time if work_time in options else options[24])  # default value
         entry_1 = OptionMenu(self.window, self.var1, *options)
         entry_1.place(x=319.0, y=24.0, width=144.0, height=29.0)
 
         self.var2 = StringVar(self.window)
-        self.var2.set(options[4])  # default value
+        self.var2.set(short_break_time if short_break_time in options else options[4])  # default value
         entry_2 = OptionMenu(self.window, self.var2, *options)
         entry_2.place(x=320.0, y=86.0, width=144.0, height=29.0)
 
         self.var3 = StringVar(self.window)
-        self.var3.set(options[14])  # default value
+        self.var3.set(long_break_time if long_break_time in options else options[14])  # default value
         entry_3 = OptionMenu(self.window, self.var3, *options)
         entry_3.place(x=319.0, y=149.0, width=144.0, height=29.0)
 
@@ -130,9 +136,6 @@ class SettingsWindow:
             width=108.0,
             height=45.0
         )
-
-
-
 
     def save_settings(self):
         work_time = self.var1.get()
