@@ -28,8 +28,6 @@ class MainWindow:
         self.progress_bar_color = "#BF3939" # プログレスバーの初期色
         self.timer_paused = False
 
-        self.button_image_6 = PhotoImage(file=self.relative_to_assets("button_6.png"))
-
         # キャンバスの設定
         self.canvas = Canvas(self.window, bg="#F2F1DC", height=300, width=500, bd=0, highlightthickness=0, relief="ridge")
         self.canvas.place(x=0, y=0)
@@ -40,6 +38,7 @@ class MainWindow:
         self.button_image_3 = PhotoImage(file=self.relative_to_assets("button_3.png"))
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
         self.button_image_5 = PhotoImage(file=self.relative_to_assets("button_5.png"))
+        self.button_image_6 = PhotoImage(file=self.relative_to_assets("button_6.png"))
 
         # スタートボタン
         self.button_start = Button(image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.start_timer, relief="flat")
@@ -51,9 +50,9 @@ class MainWindow:
 
         # その他のボタンの設定
         self.button_3 = Button(image=self.button_image_3, borderwidth=0, highlightthickness=0, command=lambda: print("button_3 clicked"), relief="flat")
-        self.button_3.place(x=416.0, y=144.0, width=60.0, height=60.0)
+        self.button_3.place(x=416.0, y=144.0, width=60.0, height=70.0)
         self.button_2 = Button(image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.open_settings, relief="flat")
-        self.button_2.place(x=416.0, y=210.0, width=60.0, height=60.0)
+        self.button_2.place(x=416.0, y=210.0, width=60.0, height=70.0)
 
         # タイマー設定の読み込み
         with open('utils/config.json', 'r') as file:
@@ -92,22 +91,32 @@ class MainWindow:
         self.button_2.place_forget()
         self.button_3.place_forget()
         # button_5をbutton_2の位置に表示する
-        self.button_5 = Button(image=self.button_image_5, borderwidth=0, highlightthickness=0, command=self.pause_timer, relief="flat")
-        self.button_5.place(x=416.0, y=210.0, width=60.0, height=60.0)
+        self.button_5 = Button(image=self.button_image_5, borderwidth=0, highlightthickness=0, command=self.pause_timer2, relief="flat")
+        self.button_5.place(x=416.0, y=210.0, width=60.0, height=70.0)
 
 
     def pause_timer(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
 
+    def pause_timer2(self):
+        self.controller.pause_timer()  # TimerControllerに処理を委託
+
         # ウィンドウ左上に「一時停止中」と表示
-        self.canvas.create_text(10, 10, anchor="nw", text="一時停止中", fill="#222222", font=("Helvetica", 16))
+        if 'pause_text' in self.__dict__:
+            self.canvas.delete(self.pause_text)
+            del self.pause_text
+        else:
+            self.pause_text = self.canvas.create_text(10, 10, anchor="nw", text="一時停止中", fill="#222222", font=("x12y12pxMaruMinya", 16))
 
-        # button_5を非表示
-        self.button_5.place_forget()
-
-        # button_5と同じ位置に、button_6を表示
-        self.button_6 = Button(image=self.button_image_6, borderwidth=0, highlightthickness=0, command=self.resume_timer, relief="flat")
-        self.button_6.place(x=416.0, y=210.0, width=60.0, height=60.0)
+        # button_5とbutton_6の表示を切り替える
+        if 'button_6' in self.__dict__:
+            self.button_6.place_forget()
+            del self.button_6
+            self.button_5.place(x=416.0, y=210.0, width=60.0, height=70.0)
+        else:
+            self.button_5.place_forget()
+            self.button_6 = Button(image=self.button_image_6, borderwidth=0, highlightthickness=0, command=self.pause_timer2, relief="flat")
+            self.button_6.place(x=416.0, y=210.0, width=60.0, height=70.0)
 
 
     def update_timer(self):
