@@ -3,13 +3,13 @@ import json
 from pathlib import Path
 from tkinter import Tk, Canvas, StringVar, OptionMenu, Button, PhotoImage,Toplevel
 from utils.config import save_config
-from view.settings_saved_window import SettingsSavedWindow
+from view.settings_window import SettingsWindow  # 追加
 
 OUTPUT_PATH = Path.cwd()
 ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "setting"
 options = [str(i) for i in range(1, 61)]  # Options for the dropdowns
 
-class SettingsWindow:
+class SettingsSavedWindow:
 
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
@@ -146,8 +146,9 @@ class SettingsWindow:
         print("Settings saved!")
 
     def go_back_to_main(self):
-        SettingsSavedWindow(self.main_window)  # 設定保存ウィンドウを表示
-        self.window.withdraw()  # 設定ウィンドウを一時的に隠す
+        SettingsWindow(self.main_window, self.window)  # SettingsWindowを表示
+        self.window.withdraw()  # 設定保存ウィンドウを一時的に隠す
 
     def run(self):
         self.window.mainloop()
+
