@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from tkinter import Tk, Canvas, StringVar, OptionMenu, Button, PhotoImage,Toplevel
 from utils.config import save_config
+from view.settings_saved_window import SettingsSavedWindow
 
 OUTPUT_PATH = Path.cwd()
 ASSETS_PATH = OUTPUT_PATH / "view" / "img" / "setting"
@@ -145,8 +146,8 @@ class SettingsWindow:
         print("Settings saved!")
 
     def go_back_to_main(self):
-        self.window.destroy()  # 設定ウィンドウを閉じる
-        self.main_window.show()  # メインウィンドウを再表示
+        SettingsSavedWindow(self.main_window)  # 設定保存ウィンドウを表示
+        self.window.withdraw()  # 設定ウィンドウを一時的に隠す
 
     def run(self):
         self.window.mainloop()
