@@ -143,11 +143,14 @@ class SettingsWindow:
         short_break_time = self.var2.get()
         long_break_time = self.var3.get()
         save_config(work_time, short_break_time, long_break_time)  # この行を修正
+        self.window.destroy()  # 設定ウィンドウを閉じる
         print("Settings saved!")
+        SettingsSavedWindow(self.main_window)  # 設定保存ウィンドウを表示
+
 
     def go_back_to_main(self):
-        SettingsSavedWindow(self.main_window)  # 設定保存ウィンドウを表示
-        self.window.withdraw()  # 設定ウィンドウを一時的に隠す
+        self.window.destroy()  # 設定ウィンドウを閉じる
+        self.main_window.show()  # メインウィンドウを再表示
 
     def run(self):
         self.window.mainloop()
