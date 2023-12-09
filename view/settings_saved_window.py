@@ -12,7 +12,7 @@ class SettingsSavedWindow:
         self.main_window = main_window  # 追加
         self.window = Toplevel(main_window.window)
         self.window.geometry("500x300")
-        self.window.configure(bg="#AFAFAF")
+        self.window.configure(bg="#D9D9D9")
 
         config = load_config()
         work_time = config.get('work_time', 'N/A')
@@ -21,7 +21,7 @@ class SettingsSavedWindow:
 
         self.canvas = Canvas(
             self.window,
-            bg="#AFAFAF",
+            bg="#D9D9D9",
             height=300,
             width=500,
             bd=0,
@@ -37,7 +37,7 @@ class SettingsSavedWindow:
 
 
         self.canvas.create_text(
-            165.0,
+            160.0,
             242.0,
             anchor="nw",
             text="画面が閉じるまで",
@@ -100,16 +100,17 @@ class SettingsSavedWindow:
             font=("x12y12pxMaruMinya", 28 * -1)
         )
 
+        circle_outlinesize = 1
         self.circles = [
-            self.canvas.create_oval(338.3333435058594, 237.66668701171875, 368.3333396911621, 267.6666831970215, fill="#91EDF6", outline="#AFAFAF"),
-            self.canvas.create_oval(390.0, 237.66668701171875, 419.99999618530273, 267.6666831970215, fill="#91EDF6", outline="#AFAFAF"),
-            self.canvas.create_oval(441.66668701171875, 237.66668701171875, 471.6666831970215, 267.6666831970215, fill="#91EDF6", outline="#AFAFAF"),
+            self.canvas.create_oval(338.3333435058594, 237.66668701171875, 368.3333396911621, 267.6666831970215, fill="#91EDF6", outline="#AFAFAF", width=circle_outlinesize),
+            self.canvas.create_oval(390.0, 237.66668701171875, 419.99999618530273, 267.6666831970215, fill="#91EDF6", outline="#AFAFAF", width=circle_outlinesize),
+            self.canvas.create_oval(441.66668701171875, 237.66668701171875, 471.6666831970215, 267.6666831970215, fill="#91EDF6", outline="#AFAFAF", width=circle_outlinesize),
         ]
         self.update_circles()
 
     def update_circles(self):
-        for i in range(3):
-            self.window.after(1000 * (i + 1), lambda: self.canvas.itemconfig(self.circles[i], fill="#FFFFFF"))
+        for i in range(2, -1, -1):
+            self.window.after(1000 * (3 - i), lambda i=i: self.canvas.itemconfig(self.circles[i], fill="#FFFFFF"))
         self.window.after(3000, self.go_back_to_main)  # 3秒後にメインウィンドウを再表示
 
     def relative_to_assets(self, path: str) -> Path:
