@@ -98,7 +98,7 @@ class MainWindow:
 
     def pause_timer(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
-        self.toggle_start_button()
+        # self.toggle_start_button()
 
     def pause_timer2(self):
         self.controller.pause_timer()  # TimerControllerに処理を委託
