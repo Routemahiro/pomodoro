@@ -80,9 +80,11 @@ class MainWindow:
 
     def notify_work_end(self):
         self.button_work.place(x=37.0, y=185.0, width=344.0, height=85.0)
+        self.button_work.lift()  # button_workを前面に表示する
 
     def notify_rest_end(self):
         self.button_rest.place(x=37.0, y=185.0, width=344.0, height=85.0)
+        self.button_rest.lift()  # button_restを前面に表示する
 
     def start_work(self):
         self.controller.start_work()
