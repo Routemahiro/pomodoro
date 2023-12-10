@@ -40,6 +40,10 @@ class MainWindow:
         self.button_image_2 = PhotoImage(file=self.relative_to_assets("button_2.png"))
         self.button_image_5 = PhotoImage(file=self.relative_to_assets("button_5.png"))
         self.button_image_6 = PhotoImage(file=self.relative_to_assets("button_6.png"))
+        self.button_image_work = PhotoImage(file=self.relative_to_assets("work_button.png"))
+        self.button_image_rest = PhotoImage(file=self.relative_to_assets("rest_button.png"))
+        self.button_work = Button(image=self.button_image_work, borderwidth=0, highlightthickness=0, command=self.start_work, relief="flat")
+        self.button_rest = Button(image=self.button_image_rest, borderwidth=0, highlightthickness=0, command=self.start_rest, relief="flat")
 
         # スタートボタン
         self.button_start = Button(image=self.button_image_1, borderwidth=0, highlightthickness=0, command=self.start_timer, relief="flat")
@@ -73,6 +77,18 @@ class MainWindow:
         self.window.withdraw()  # メインウィンドウを非表示
         settings = SettingsWindow(self, self.window)  # self.windowを渡す
         settings.run()
+
+    def notify_work_end(self):
+        self.button_work.place(x=37.0, y=185.0, width=344.0, height=85.0)
+
+    def notify_rest_end(self):
+        self.button_rest.place(x=37.0, y=185.0, width=344.0, height=85.0)
+
+    def start_work(self):
+        self.controller.start_work()
+
+    def start_rest(self):
+        self.controller.start_rest()
 
     def show(self):  # 新しいメソッド
         self.window.deiconify()  # メインウィンドウを表示
