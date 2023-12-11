@@ -248,10 +248,12 @@ class TimerController:
         self.main_window = main_window  # MainWindowのインスタンスを保持
 
     def start_work(self):
+        print("start_workメソッド呼び出し")
         self.is_work_session = True
         self.start_timer()
 
     def start_rest(self):
+        print("start_restメソッド呼び出し")
         self.is_work_session = False
         self.start_timer()
 
@@ -308,7 +310,7 @@ class TimerController:
                 self.timer_seconds = self.short_break_time
 
     def pause_timer(self):
-        print("Pause button clicked")
+        print("paused_timer")
         self.pomodoro_timer.pause_timer()  # Make sure this line is present
 
     def end_timer(self):

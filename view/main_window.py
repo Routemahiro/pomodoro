@@ -79,12 +79,18 @@ class MainWindow:
         settings.run()
 
     def notify_work_end(self):
-        self.button_work.place(x=37.0, y=185.0, width=344.0, height=85.0)
-        self.button_work.lift()  # button_workを前面に表示する
+        self.controller.pause_timer()  # Add this line
+        self.button_rest.place(x=37.0, y=185.0, width=344.0, height=85.0)
+        self.button_rest.lift()  # button_workを前面に表示する
+        self.button_rest.config(command=self.controller.start_work)  # Add this line
+        # self.button_work.place_forget()  # Add this line to hide the button
 
     def notify_rest_end(self):
-        self.button_rest.place(x=37.0, y=185.0, width=344.0, height=85.0)
-        self.button_rest.lift()  # button_restを前面に表示する
+        self.controller.pause_timer()  # Add this line
+        self.button_work.place(x=37.0, y=185.0, width=344.0, height=85.0)
+        self.button_work.lift()  # button_restを前面に表示する
+        self.button_work.config(command=self.controller.start_rest)  # Add this line
+        # self.button_rest.place_forget()  # Add this line to hide the button
 
     def start_work(self):
         self.controller.start_work()
@@ -160,8 +166,9 @@ class MainWindow:
             self.update_progress_bar(remaining_time)
             self.window.after(1000, self.update_timer)
         else:
-            self.is_work_session = not self.is_work_session  # セッションの種類を切り替える
-            self.window.after(1000, self.update_timer)  # こちらも再度update_timerを呼び出す
+            self.controller.pause_timer()  # タイマーを一時停止
+            # self.is_work_session = not self.is_work_session  # セッションの種類を切り替える
+            # self.window.after(1000, self.update_timer)  # こちらも再度update_timerを呼び出す
 
 
 
