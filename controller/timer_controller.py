@@ -227,11 +227,9 @@ class TimerController:
     def __init__(self,main_window):
         self.main_window = main_window  # この行を追加
         self.load_config()
-        self.timer_seconds = self.work_time
         self.is_work_session = True
         self.session_count = 0
         self.timer_paused = False
-        self.remaining_time = self.work_time  # 追加
         update_ui_callback=self.update_ui  # この行を追加
         self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock
 
@@ -253,6 +251,10 @@ class TimerController:
         self.work_time = int(config["work_time"]) * 60
         self.short_break_time = int(config["short_break_time"]) * 60
         self.long_break_time = int(config["long_break_time"]) * 60
+
+    @property
+    def remaining_time(self):
+        return self.pomodoro_timer.remaining_time
 
     def start_session(self):
         self.pomodoro_timer.db_handler.start_session()
@@ -311,17 +313,7 @@ class TimerController:
             self.session_count += 1
 
     def update_timer(self):
-        if self.pomodoro_timer.timer_paused:
-            print("MainWindow's timer is paused.")  # Debug
-            return
-
-        if self.remaining_time > 0:
-            self.remaining_time -= 1
-        else:
-            self.is_work_session = not self.is_work_session
-            if not self.is_work_session:
-                self.session_count += 1
-            self.cancel_timer = True
+        self.pomodoro_timer.update_timer()
 
     def update_ui(self):
         # ここでUIの時間表示を更新するコードを書く
