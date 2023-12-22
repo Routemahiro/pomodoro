@@ -129,8 +129,8 @@ class MainWindow:
             self.button_start.config(image=self.button_image_4, state=NORMAL, command=self.end_timer)
 
 
-    def update_timer(self):
-        self.controller.update_timer()  # TimerControllerに処理を委託
+    async def update_timer(self):
+        await self.controller.update_timer()  # TimerControllerに処理を委託
         remaining_time = self.controller.pomodoro_timer.remaining_time
         print(f"MainWindow's update_timer, remaining_time: {remaining_time}")  # Debug: この行を追加
 

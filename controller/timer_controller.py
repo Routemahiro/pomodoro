@@ -312,8 +312,8 @@ class TimerController:
         if not self.is_work_session:
             self.session_count += 1
 
-    def update_timer(self):
-        self.pomodoro_timer.update_timer()
+    async def update_timer(self):
+        await self.pomodoro_timer.update_timer()
 
     def update_ui(self):
         # ここでUIの時間表示を更新するコードを書く
