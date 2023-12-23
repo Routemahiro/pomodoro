@@ -94,6 +94,9 @@ class PomodoroTimer:
             self.timer_paused = not self.timer_paused
 
     async def update_work_activity(self):
+        if self.timer_paused:
+            return
+
         try:
             print("update_work_activity is called")  # 追加
             print(f"work_mode: {self.work_mode}")  # 追加
