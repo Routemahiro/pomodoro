@@ -24,7 +24,6 @@ class MainWindow:
         self.window.geometry("500x300")
         self.window.configure(bg="#F2F1DC")
         self.progress_bar_length = 381.0
-        self.timer_seconds = 1500
         self.progress_bar_color = "#BF3939" # プログレスバーの初期色
         self.timer_paused = False
 
