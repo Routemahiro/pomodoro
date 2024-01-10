@@ -73,6 +73,7 @@ class PomodoroTimer:
         self.activity_timer = Timer(60, self.update_work_activity)  # 1分ごとにupdate_work_activityを呼び出すタイマー
         self.update_ui_callback = update_ui_callback  # UIを更新するためのコールバック
         self.timer_paused = False
+        # ★ここともう一箇所で同一のコードで宣言されている。場合によっては統一してしまうことが必要かも
         self.remaining_time = self.work_time
         self.last_ai_comment = None  # Add this line to initialize ai_comment
         self.pomodoro_id = 1  # ポモドーロIDを初期化
@@ -227,27 +228,22 @@ from plyer import notification
 
 class TimerController:
     def __init__(self,main_window):
-        self.main_window = main_window  # この行を追加
+        self.main_window = main_window
         self.load_config()
-        self.timer_seconds = self.work_time
         self.is_work_session = True
         self.session_count = 0
         self.timer_paused = False
-        self.remaining_time = self.work_time  # 追加
-        update_ui_callback=self.update_ui  # この行を追加
+        self.remaining_time = self.work_time
+        update_ui_callback = self.update_ui
         self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock
 
-        # PomodoroTimer インスタンスを作成
-    # PomodoroTimer インスタンスを作成
+
         db_handler = DBHandler()  # DBHandler インスタンスの作成
         last_session_id = db_handler.get_last_session_id()  # 最後のセッション ID を取得
         new_session_id = last_session_id + 1  # 新しいセッション ID
 
         self.pomodoro_timer = PomodoroTimer(timer_controller=self, session_id=new_session_id, work_time=self.work_time, break_time=self.short_break_time,
                                             work_callback=self.work_callback, break_callback=self.break_callback, update_ui_callback=self.update_ui)
-
-        print("PomodoroTimer instance created in TimerController.")  # Debug
-
         self.main_window = main_window  # MainWindowのインスタンスを保持
 
     def start_work(self):
@@ -336,10 +332,8 @@ class TimerController:
                 self.main_window.notify_rest_end()
 
     def update_ui(self):
-        # ここでUIの時間表示を更新するコードを書く
         # MainWindowのis_work_sessionをPomodoroTimerのwork_modeに同期
         self.main_window.is_work_session = self.pomodoro_timer.work_mode
 
         # プログレスバーの色を更新
         self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
-        # コミットを適当に作るために適当な文章差し込み

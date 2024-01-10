@@ -58,12 +58,13 @@ class MainWindow:
         self.button_2 = Button(image=self.button_image_2, borderwidth=0, highlightthickness=0, command=self.open_settings, relief="flat")
         self.button_2.place(x=416.0, y=210.0, width=60.0, height=70.0)
 
-        # タイマー設定の読み込み
+        # ★タイマー設定の読み込み　timer_controller.pyでも同様にconfigを読み込んでいるので、そちらから持ってきたほうがいいのでは？
         with open('utils/config.json', 'r') as file:
             config = json.load(file)
             self.work_time = int(config["work_time"]) * 60
             self.short_break_time = int(config["short_break_time"]) * 60
             self.long_break_time = int(config["long_break_time"]) * 60
+
         self.timer_seconds = self.work_time
         self.is_work_session = True
         self.session_count = 0
