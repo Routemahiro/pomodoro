@@ -58,6 +58,26 @@ class Timer:
         except Exception as e:
             print(f"An exception occurred in Timer's run method: {e}")
 
+import threading
+
+class RemainingTimeManager:
+    def __init__(self, initial_time):
+        self._remaining_time = initial_time
+        self._lock = threading.Lock()
+
+    def get_remaining_time(self):
+        with self._lock:
+            return self._remaining_time
+
+    def set_remaining_time(self, new_time):
+        with self._lock:
+            self._remaining_time = new_time
+
+    def decrement_remaining_time(self):
+        with self._lock:
+            self._remaining_time -= 1
+
+
 class PomodoroTimer:
     def __init__(self, timer_controller, session_id, work_time, break_time, work_callback, break_callback,update_ui_callback):
         print("PomodoroTimer is initialized.")  # Debug
