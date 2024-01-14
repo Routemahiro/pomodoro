@@ -40,7 +40,7 @@ class Timer:
         loop.close()
 
     def stop(self):
-        print("Timer class's run is started.")  # Debug
+        print("Timer class's run is started。2回呼び出されるのは、アクティビティを1分ごとに取得するタイマーとセッションを管理するタイマーの両方を停止させるため.")  # Debug
         self.running = False
         if self.thread is not None:
             self.thread.join()  # Wait for the thread to finish
