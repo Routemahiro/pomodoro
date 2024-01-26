@@ -342,4 +342,6 @@ class TimerController:
 
         # プログレスバーの色を更新
         self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
-        # コミットを適当に作るために適当な文章差し込み
+
+        # PomodoroTimerのremaining_timeをTimerControllerのremaining_timeに設定
+        self.remaining_time = self.pomodoro_timer.remaining_time
