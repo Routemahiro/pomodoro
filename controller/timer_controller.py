@@ -70,10 +70,9 @@ class PomodoroTimer:
         self.timer = Timer(1, self.update_timer)  # インターバルを1秒に設定
         self.timer_session = PomodoroSession()
         self.work_mode = True
-        self.activity_timer = Timer(60, self.update_work_activity)  # 1分ごとにupdate_work_activityを呼び出すタイマー
         self.update_ui_callback = update_ui_callback  # UIを更新するためのコールバック
         self.timer_paused = False
-        # ★ここともう一箇所で同一のコードで宣言されている。場合によっては統一してしまうことが必要かも？
+        # main_window.pyに渡されているのはPomodoroTimerの方のremaining_timeだった
         self.remaining_time = self.work_time
         self.last_ai_comment = None  # Add this line to initialize ai_comment
         self.pomodoro_id = 1  # ポモドーロIDを初期化
@@ -85,9 +84,7 @@ class PomodoroTimer:
 
     def start(self):
         print("PomodoroTimer's start is called.")  # Debug
-        # self.timer.interval = 1
         self.timer.start()
-        self.activity_timer.start()  # この行を追加
         print("Timer's start is called.")  # Debug
 
     def pause_timer(self):
@@ -124,7 +121,6 @@ class PomodoroTimer:
     def stop(self):
         print("PomodoroTimer's stop is called.")  # Debug
         self.timer.stop()
-        self.activity_timer.stop()  # 活動タイマーを停止
 
     async def update_timer(self):
         with self.timer_controller.timer_paused_lock:  # Acquire the lock
@@ -133,7 +129,13 @@ class PomodoroTimer:
                 return
 
         if self.remaining_time > 0:
+            
             self.remaining_time -= 1
+            print("pomodorotimerクラスの残り時間"+str(self.remaining_time)+"""\n
+            """)
+            # Call update_work_activity every 60 seconds
+            if self.remaining_time % 60 == 0:
+                await self.update_work_activity()
         else:
             await self.async_switch_mode()  # こちらを修正
 
@@ -177,9 +179,8 @@ class PomodoroTimer:
             # Call the break callback with the AI comment
             self.break_callback(ai_comment)
 
-        # セッションの自動切り替えを無効にするため、以下の行をコメントアウトします
-        # self.work_mode = not self.work_mode
         self.update_ui_callback()  # UIを更新
+        
 
     def switch_mode(self):
         asyncio.run(self.async_switch_mode())
@@ -325,6 +326,8 @@ class TimerController:
                 print("MainWindow's timer is paused.")  # Debug
                 return
             self.remaining_time -= 1
+            print("timercontrollerクラスの残り時間"+str(self.remaining_time)+"""\n
+            """)
         else:
             if self.is_work_session:
                 self.main_window.notify_work_end()
@@ -337,5 +340,7 @@ class TimerController:
 
         # プログレスバーの色を更新
         self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
-        # コミットを適当に作るために適当な文章差し込み
+        # remaining_timeの統一化のためのコード
         self.remaining_time = self.pomodoro_timer.remaining_time
+        # 以下は、連続してAICommentを呼び出しやがったのでダメ
+        # self.pomodoro_timer.remaining_time = self.remaining_time

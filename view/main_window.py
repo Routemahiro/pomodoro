@@ -156,7 +156,7 @@ class MainWindow:
     def update_timer(self):
         self.controller.update_timer()  # TimerControllerに処理を委託
         remaining_time = self.controller.pomodoro_timer.remaining_time
-        print(f"MainWindow's update_timer, remaining_time: {remaining_time}")  # Debug: この行を追加
+        
 
         if remaining_time > 0:
             minutes, seconds = divmod(remaining_time, 60)
