@@ -72,7 +72,6 @@ class PomodoroTimer:
         self.work_mode = True
         self.update_ui_callback = update_ui_callback  # UIを更新するためのコールバック
         self.timer_paused = False
-        # main_window.pyに渡されているのはPomodoroTimerの方のremaining_timeだった
         self.remaining_time = self.work_time
         self.last_ai_comment = None  # Add this line to initialize ai_comment
         self.pomodoro_id = 1  # ポモドーロIDを初期化
@@ -129,7 +128,6 @@ class PomodoroTimer:
                 return
 
         if self.remaining_time > 0:
-            
             self.remaining_time -= 1
             print("pomodorotimerクラスの残り時間"+str(self.remaining_time)+"""\n
             """)
@@ -234,7 +232,6 @@ class TimerController:
         self.is_work_session = True
         self.session_count = 0
         self.timer_paused = False
-        self.remaining_time = self.work_time
         update_ui_callback = self.update_ui
         self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock
 
@@ -319,14 +316,14 @@ class TimerController:
         self.is_work_session = not self.is_work_session
         if not self.is_work_session:
             self.session_count += 1
+        self.pomodoro_timer.stop()  # Add this line to stop the timer completely
 
     def update_timer(self):
-        if self.remaining_time > 0:
+        if self.pomodoro_timer.remaining_time > 0:
             if self.pomodoro_timer.timer_paused:
                 print("MainWindow's timer is paused.")  # Debug
                 return
-            self.remaining_time -= 1
-            print("timercontrollerクラスの残り時間"+str(self.remaining_time)+"""\n
+            print("timercontrollerクラスの残り時間"+str(self.pomodoro_timer.remaining_time)+"""\n
             """)
         else:
             if self.is_work_session:
@@ -340,7 +337,3 @@ class TimerController:
 
         # プログレスバーの色を更新
         self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
-        # remaining_timeの統一化のためのコード
-        self.remaining_time = self.pomodoro_timer.remaining_time
-        # 以下は、連続してAICommentを呼び出しやがったのでダメ
-        # self.pomodoro_timer.remaining_time = self.remaining_time
