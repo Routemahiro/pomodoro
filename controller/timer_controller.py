@@ -40,10 +40,12 @@ class Timer:
         loop.close()
 
     def stop(self):
-        print("Timer class's run is started。2回呼び出されるのは、アクティビティを1分ごとに取得するタイマーとセッションを管理するタイマーの両方を停止させるため.")  # Debug
+        print("Timer class's stop is called.")  # Debug
         self.running = False
         if self.thread is not None:
-            self.thread.join()  # Wait for the thread to finish
+            # スレッドが現在のスレッドでないことを確認してからjoinを呼び出す
+            if self.thread != threading.current_thread():
+                self.thread.join()  # Wait for the thread to finish
 
     async def run(self):
         print(f"Callback is: {self.callback}")
@@ -139,6 +141,7 @@ class PomodoroTimer:
 
     async def async_switch_mode(self):
         print("Async Switch_mode is called.")  # Debug
+        self.stop()  # Stop the timer when switching modes
         if self.work_mode:
             # Work time has ended
             self.remaining_time = self.break_time
@@ -247,13 +250,12 @@ class TimerController:
     def start_work(self):
         print("start_workメソッド呼び出し")
         self.is_work_session = True
-        self.start_timer()
+        self.pomodoro_timer.start()  # Start the timer when the user presses the button
 
     def start_rest(self):
         print("start_restメソッド呼び出し")
         self.is_work_session = False
-        self.start_timer()
-
+        self.pomodoro_timer.start()  # Start the timer when the user presses the button
 
     def load_config(self):
         config = load_config()  # Modified this line
@@ -316,7 +318,7 @@ class TimerController:
         self.is_work_session = not self.is_work_session
         if not self.is_work_session:
             self.session_count += 1
-        self.pomodoro_timer.stop()  # Add this line to stop the timer completely
+        # Do not call stop method here
 
     def update_timer(self):
         if self.pomodoro_timer.remaining_time > 0:
