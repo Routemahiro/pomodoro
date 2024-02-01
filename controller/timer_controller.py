@@ -181,7 +181,7 @@ class PomodoroTimer:
             self.break_callback(ai_comment)
 
         self.update_ui_callback()  # UIを更新
-        
+        # self.start() の呼び出しを削除
 
     def switch_mode(self):
         asyncio.run(self.async_switch_mode())
