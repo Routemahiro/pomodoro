@@ -199,11 +199,22 @@ class MainWindow:
         # afterメソッドを使用してGUIの更新をスケジュールします
         self.window.after(0, update_gui)
 
+    def update_ui(self):
+        #bytes: \xe3\x82bytes:\xbfイマーの時間を更新
+        if self.is_work_session:
+            remaining_time = self.work_time
+        else:
+            remaining_time = self.short_break_time if self.session_count % 4 != 0 else self.long_break_time
 
+        minutes, seconds = divmod(remaining_time, 60)
+        time_str = f"{minutes:02}:{seconds:02}"
+        self.canvas.itemconfig(self.timer_text, text=time_str)
 
+        #bytes: \xe3\x83bytes:\x97ログレスバーの色を更新
+        self.progress_bar_color = "#BF3939" if self.is_work_session else "#4E6BED"
+        self.update_progress_bar(remaining_time)
 
-
-         
+        # 他のUI要素の更新が必要な場合はここにbytes:\xe8\xbfbytes:\xbd加
 
     def run(self):
         self.window.mainloop()
