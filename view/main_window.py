@@ -214,8 +214,6 @@ class MainWindow:
         self.progress_bar_color = "#BF3939" if self.is_work_session else "#4E6BED"
         self.update_progress_bar(remaining_time)
 
-        # 他のUI要素の更新が必要な場合はここにbytes:\xe8\xbfbytes:\xbd加
-
     def run(self):
         self.window.mainloop()
 

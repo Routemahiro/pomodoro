@@ -145,6 +145,7 @@ class PomodoroTimer:
         if self.work_mode:
             # Work time has ended
             self.remaining_time = self.break_time
+            self.work_mode = False  # 作業モードから休憩モードへ切り替え
 
             # Get work activities from the database
             activities = self.db_handler.get_activities(self.session_id, self.pomodoro_id)
@@ -166,6 +167,7 @@ class PomodoroTimer:
         else:
             # Break time has ended
             self.remaining_time = self.work_time
+            self.work_mode = True  # 休憩モードから作業モードへ切り替え
 
             # Create a message for the AI
             messages = [
@@ -181,7 +183,6 @@ class PomodoroTimer:
             self.break_callback(ai_comment)
 
         self.update_ui_callback()  # UIを更新
-        # self.start() の呼び出しを削除
 
     def switch_mode(self):
         asyncio.run(self.async_switch_mode())
@@ -336,6 +337,7 @@ class TimerController:
     def update_ui(self):
         # MainWindowのis_work_sessionをPomodoroTimerのwork_modeに同期
         self.main_window.is_work_session = self.pomodoro_timer.work_mode
+        self.main_window.update_ui()
 
         # プログレスバーの色を更新
         self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
