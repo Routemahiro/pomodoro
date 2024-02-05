@@ -85,12 +85,20 @@ class MainWindow:
         self.button_rest.config(command=self.controller.start_work)  # Add this line
         # self.button_work.place_forget()  # Add this line to hide the button
 
+        # button_1が存在していれば、その表示を無くす
+        if hasattr(self, 'button_1'):
+            self.button_1.place_forget()
+        if hasattr(self, 'button_work'):
+            self.button_work.place_forget()
+
     def notify_rest_end(self):
         self.controller.pause_timer()  # Add this line
         self.button_work.place(x=37.0, y=185.0, width=344.0, height=85.0)
         self.button_work.lift()  # button_restを前面に表示する
         self.button_work.config(command=self.controller.start_rest)  # Add this line
         # self.button_rest.place_forget()  # Add this line to hide the button
+        if hasattr(self, 'button_rest'):
+            self.button_rest.place_forget()
 
     def start_work(self):
         self.controller.start_work()
