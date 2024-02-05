@@ -131,13 +131,12 @@ class PomodoroTimer:
 
         if self.remaining_time > 0:
             self.remaining_time -= 1
-            print("pomodorotimerクラスの残り時間"+str(self.remaining_time)+"""\n
-            """)
-            # Call update_work_activity every 60 seconds
+            print(f"PomodoroTimerクラスの残り時間: {self.remaining_time}")
             if self.remaining_time % 60 == 0:
                 await self.update_work_activity()
         else:
-            await self.async_switch_mode()  # こちらを修正
+            await self.async_switch_mode()
+            self.timer_controller.update_ui()  # TimerControllerのUI更新メソッドを呼び出す
 
     async def async_switch_mode(self):
         print("Async Switch_mode is called.")  # Debug
@@ -321,23 +320,9 @@ class TimerController:
             self.session_count += 1
         # Do not call stop method here
 
-    def update_timer(self):
-        if self.pomodoro_timer.remaining_time > 0:
-            if self.pomodoro_timer.timer_paused:
-                print("MainWindow's timer is paused.")  # Debug
-                return
-            print("timercontrollerクラスの残り時間"+str(self.pomodoro_timer.remaining_time)+"""\n
-            """)
-        else:
-            if self.is_work_session:
-                self.main_window.notify_work_end()
-            else:
-                self.main_window.notify_rest_end()
-
     def update_ui(self):
-        # MainWindowのis_work_sessionをPomodoroTimerのwork_modeに同期
+        # UIの更新ロジック
         self.main_window.is_work_session = self.pomodoro_timer.work_mode
         self.main_window.update_ui()
-
-        # プログレスバーの色を更新
         self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
+        print(f"TimerControllerクラスの残り時間: {self.pomodoro_timer.remaining_time}")
