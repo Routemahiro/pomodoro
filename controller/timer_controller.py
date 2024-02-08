@@ -319,7 +319,7 @@ class TimerController:
         self.is_work_session = not self.is_work_session
         if not self.is_work_session:
             self.session_count += 1
-        # Do not call stop method here
+        self.update_ui()  # session_countの更新後にUIを更新するように変更
 
     def update_timer(self):
         if self.pomodoro_timer.remaining_time > 0:

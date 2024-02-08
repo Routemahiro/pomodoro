@@ -208,6 +208,7 @@ class MainWindow:
         self.window.after(0, update_gui)
 
     def update_ui(self):
+        print("update_ui呼び出し→セッションカウント数"+str(self.session_count))
         #bytes: \xe3\x82bytes:\xbfイマーの時間を更新
         if self.is_work_session:
             remaining_time = self.work_time
