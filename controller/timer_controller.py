@@ -264,6 +264,9 @@ class TimerController:
         self.short_break_time = int(config["short_break_time"]) * 60
         self.long_break_time = int(config["long_break_time"]) * 60
 
+    def get_session_count(self):
+        return self.session_count
+
     def start_session(self):
         self.pomodoro_timer.db_handler.start_session()
 
