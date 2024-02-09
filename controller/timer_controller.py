@@ -234,7 +234,7 @@ class TimerController:
         self.main_window = main_window
         self.load_config()
         self.is_work_session = True
-        self.session_count = 0
+        self.session_count = 1
         self.timer_paused = False
         update_ui_callback = self.update_ui
         self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock

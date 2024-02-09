@@ -15,7 +15,7 @@ class PomodoroSession:
         self.timer_seconds = self.work_time
         self.remaining_time = self.timer_seconds
         self.is_work_session = True
-        self.session_count = 0
+        self.session_count = 1
         self.timer_paused = False
         self.cancel_timer = False
 
