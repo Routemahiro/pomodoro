@@ -11,7 +11,7 @@ from datetime import datetime
 import os
 import openai
 import pygetwindow as gw
-from utils.config import load_config  # Added this line
+from utils.config import Config  # Modified this line
 
 openai.api_key = os.getenv('OPENAI_API_KEY')  # APIキーの設定を関数の外部に移動
 
@@ -232,7 +232,13 @@ from plyer import notification
 class TimerController:
     def __init__(self,main_window):
         self.main_window = main_window
-        self.load_config()
+        # Config インスタンスを作成して設定を読み込む
+        config = Config()
+
+        self.work_time = int(config.get("work_time")) * 60
+        self.short_break_time = int(config.get("short_break_time")) * 60
+        self.long_break_time = int(config.get("long_break_time")) * 60
+
         self.is_work_session = True
         self.session_count = 1
         self.timer_paused = False
@@ -257,12 +263,6 @@ class TimerController:
         print("start_restメソッド呼び出し")
         self.is_work_session = False
         self.pomodoro_timer.start()  # Start the timer when the user presses the button
-
-    def load_config(self):
-        config = load_config()  # Modified this line
-        self.work_time = int(config["work_time"]) * 60
-        self.short_break_time = int(config["short_break_time"]) * 60
-        self.long_break_time = int(config["long_break_time"]) * 60
 
     def get_session_count(self):
         return self.session_count

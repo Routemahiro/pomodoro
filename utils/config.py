@@ -23,26 +23,21 @@ def save_config(work_time, short_break_time, long_break_time):
 class Config:
     def __init__(self, config_file=Path(__file__).parent / "config.json"):
         self.config_file = config_file
-        self._load_config()
+        self.settings = self.load_config() or {}
 
-    def load_config():
-        if CONFIG_FILE.exists():
-            with open(CONFIG_FILE, "r") as f:
+    def load_config(self):
+        if self.config_file.exists():
+            with open(self.config_file, "r") as f:
                 return json.load(f)
         return None
 
-    def save_config(work_time, short_break_time, long_break_time):
-        config = {
-            "work_time": work_time,
-            "short_break_time": short_break_time,
-            "long_break_time": long_break_time
-        }
-        with open(CONFIG_FILE, "w") as f:
-            json.dump(config, f)
+    def save_config(self):
+        with open(self.config_file, "w") as f:
+            json.dump(self.settings, f)
 
     def set(self, key, value):
         self.settings[key] = value
-        self._save_config()
+        self.save_config()
 
     def get(self, key):
         return self.settings.get(key, None)

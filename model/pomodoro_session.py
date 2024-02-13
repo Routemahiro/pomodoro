@@ -2,15 +2,18 @@
 
 import json
 import time
-from utils.config import load_config  # This line was added
+from utils.config import Config  # This line was added
 
 class PomodoroSession:
     def __init__(self):
         
-        config = load_config()  # This line was modified
-        self.work_time = int(config["work_time"]) * 60
-        self.short_break_time = int(config["short_break_time"]) * 60
-        self.long_break_time = int(config["long_break_time"]) * 60
+        # Config インスタンスを作成
+        config = Config()
+
+        # 設定を読み込む
+        self.work_time = int(config.get("work_time")) * 60
+        self.short_break_time = int(config.get("short_break_time")) * 60
+        self.long_break_time = int(config.get("long_break_time")) * 60
 
         self.timer_seconds = self.work_time
         self.remaining_time = self.timer_seconds

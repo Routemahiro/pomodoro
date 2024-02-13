@@ -5,6 +5,7 @@ from view.settings_window import SettingsWindow  # 設定ウィンドウのク�
 from view.end_window import EndWindow
 import time
 import json
+from utils.config import Config  # Modified this line
 
 
 
@@ -59,11 +60,10 @@ class MainWindow:
         self.button_2.place(x=416.0, y=210.0, width=60.0, height=70.0)
 
         # ★タイマー設定の読み込み　timer_controller.pyでも同様にconfigを読み込んでいるので、そちらから持ってきたほうがいいのでは？
-        with open('utils/config.json', 'r') as file:
-            config = json.load(file)
-            self.work_time = int(config["work_time"]) * 60
-            self.short_break_time = int(config["short_break_time"]) * 60
-            self.long_break_time = int(config["long_break_time"]) * 60
+        config = Config()  # Modified this line
+        self.work_time = int(config.get("work_time")) * 60  # Modified this line
+        self.short_break_time = int(config.get("short_break_time")) * 60  # Modified this line
+        self.long_break_time = int(config.get("long_break_time")) * 60  # Modified this line
 
         self.timer_seconds = self.work_time
         self.is_work_session = True
