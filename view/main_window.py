@@ -162,24 +162,12 @@ class MainWindow:
 
 
     def update_timer(self):
-        self.controller.update_timer()  # TimerControllerに処理を委託
-        remaining_time = self.controller.pomodoro_timer.remaining_time
-        
-
-        if remaining_time > 0:
-            minutes, seconds = divmod(remaining_time, 60)
-            time_str = f"{minutes:02}:{seconds:02}"
-            print(time_str)
-            self.canvas.itemconfig(self.timer_text, text=time_str)
-            self.update_progress_bar(remaining_time)
-            self.window.after(1000, self.update_timer)
-        else:
-            self.controller.pause_timer()  # タイマーを一時停止
-            # self.is_work_session = not self.is_work_session  # セッションの種類を切り替える
-            # self.window.after(1000, self.update_timer)  # こちらも再度update_timerを呼び出す
+        self.controller.update_ui()  # TimerControllerのupdate_uiメソッドを呼び出す
 
 
-
+    def update_timer_display(self, time_str, status):
+        self.canvas.itemconfig(self.timer_text, text=time_str)
+        self.update_progress_bar(status)
 
     # MainWindow クラス内の end_timer メソッドの変更
     def end_timer(self):
@@ -187,16 +175,17 @@ class MainWindow:
         self.controller.pause_timer()  # タイマーを一時停止
         EndQuestionWindow(self)  # 新しいウィンドウを表示
 
-    def update_progress_bar(self, remaining_time):
+    def update_progress_bar(self, status):
         # この関数はメインスレッドで動作します
         def update_gui():
             # タイマーが一時停止されていない場合、色を適切に設定
             if not self.timer_paused:
-                self.progress_bar_color = "#BF3939" if self.is_work_session else "#4E6BED"
+                self.progress_bar_color = "#BF3939" if status == "work" else "#4E6BED"
 
             # 作業時間か休憩時間かに応じてtimer_secondsを更新
-            self.timer_seconds = self.work_time if self.is_work_session else self.short_break_time
+            self.timer_seconds = self.work_time if status == "work" else self.short_break_time
 
+            remaining_time = self.controller.get_remaining_time()
             progress_percentage = remaining_time / self.timer_seconds
             current_length = self.progress_bar_length * progress_percentage
 

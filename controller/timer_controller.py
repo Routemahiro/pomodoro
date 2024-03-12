@@ -11,9 +11,9 @@ from datetime import datetime
 import os
 import openai
 import pygetwindow as gw
-from utils.config import Config  # Modified this line
+from utils.config import Config
 
-openai.api_key = os.getenv('OPENAI_API_KEY')  # APIキーの設定を関数の外部に移動
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 class Timer:
     def __init__(self, interval, callback):
@@ -27,10 +27,10 @@ class Timer:
             print("Timer thread is already running!")
             return
 
-        print("Timer class's start is called.")  # Debug
+        print("Timer class's start is called.")
         self.running = True
         self.thread = threading.Thread(target=self._start_event_loop)
-        self.thread.daemon = True  # Set the thread as a daemon
+        self.thread.daemon = True
         self.thread.start()
 
     def _start_event_loop(self):
@@ -40,56 +40,54 @@ class Timer:
         loop.close()
 
     def stop(self):
-        print("Timer class's stop is called.")  # Debug
+        print("Timer class's stop is called.")
         self.running = False
         if self.thread is not None:
-            # スレッドが現在のスレッドでないことを確認してからjoinを呼び出す
             if self.thread != threading.current_thread():
-                self.thread.join()  # Wait for the thread to finish
+                self.thread.join()
 
     async def run(self):
         print(f"Callback is: {self.callback}")
         try:
             while self.running:
-                print("In Timer's run method.")  # Debug
+                print("In Timer's run method.")
                 await asyncio.sleep(self.interval)
 
                 if self.running:
-                    print("Calling callback.")  # Debug
+                    print("Calling callback.")
                     await self.callback()
         except Exception as e:
             print(f"An exception occurred in Timer's run method: {e}")
 
 class PomodoroTimer:
-    def __init__(self, timer_controller, session_id, work_time, break_time, work_callback, break_callback,update_ui_callback):
-        print("PomodoroTimer is initialized.")  # Debug
+    def __init__(self, timer_controller, session_id, work_time, break_time, work_callback, break_callback, update_ui_callback):
+        print("PomodoroTimer is initialized.")
         self.timer_controller = timer_controller
         self.session_id = session_id
         self.work_time = work_time
         self.break_time = break_time
         self.work_callback = work_callback
         self.break_callback = break_callback
-        self.timer = Timer(1, self.update_timer)  # インターバルを1秒に設定
+        self.timer = Timer(1, self.update_timer)
         self.timer_session = PomodoroSession()
         self.work_mode = True
-        self.update_ui_callback = update_ui_callback  # UIを更新するためのコールバック
+        self.update_ui_callback = update_ui_callback
         self.timer_paused = False
         self.remaining_time = self.work_time
-        self.last_ai_comment = None  # Add this line to initialize ai_comment
-        self.pomodoro_id = 1  # ポモドーロIDを初期化
-        self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock
+        self.last_ai_comment = None
+        self.pomodoro_id = 1
+        self.timer_paused_lock = threading.Lock()
 
-        # Create a DBHandler and TextGenerator instances
         self.db_handler = DBHandler()
         self.text_generator = TextGenerator()
 
     def start(self):
-        print("PomodoroTimer's start is called.")  # Debug
+        print("PomodoroTimer's start is called.")
         self.timer.start()
-        print("Timer's start is called.")  # Debug
+        print("Timer's start is called.")
 
     def pause_timer(self):
-        with self.timer_paused_lock:  # Acquire the lock
+        with self.timer_paused_lock:
             self.timer_paused = not self.timer_paused
 
     async def update_work_activity(self):
@@ -97,115 +95,89 @@ class PomodoroTimer:
             return
 
         try:
-            print("update_work_activity is called")  # 追加
-            print(f"work_mode: {self.work_mode}")  # 追加
+            print("update_work_activity is called")
+            print(f"work_mode: {self.work_mode}")
             if not self.work_mode:
                 return
 
-            # Get the current window name
             window_name = self.get_window_name()
-
-            # Estimate the activity genre
             activity_genre = await self.estimate_activity_genre(window_name)
-
-
-            # Get the current time
             current_time = datetime.now()
 
-            # Add the window activity to the database
-            self.db_handler.add_window_activity(self.pomodoro_id,self.session_id, current_time, window_name, activity_genre)
-
-            self.update_ui_callback()  # UIを更新
+            self.db_handler.add_window_activity(self.pomodoro_id, self.session_id, current_time, window_name, activity_genre)
+            self.update_ui_callback()
         except Exception as e:
             print(f"Error in update_work_activity: {e}")
 
     def stop(self):
-        print("PomodoroTimer's stop is called.")  # Debug
+        print("PomodoroTimer's stop is called.")
         self.timer.stop()
 
     async def update_timer(self):
-        with self.timer_controller.timer_paused_lock:  # Acquire the lock
+        with self.timer_controller.timer_paused_lock:
             if self.timer_paused:
-                print("Timer is paused in update_timer.")  # Debug
+                print("Timer is paused in update_timer.")
                 return
 
         if self.remaining_time > 0:
             self.remaining_time -= 1
-            print("pomodorotimerクラスの残り時間"+str(self.remaining_time)+"""\n
+            print("pomodorotimerクラスの残り時間" + str(self.remaining_time) + """\n
             """)
-            # Call update_work_activity every 60 seconds
             if self.remaining_time % 60 == 0:
                 await self.update_work_activity()
         else:
-            await self.async_switch_mode()  # こちらを修正
+            await self.async_switch_mode()
 
     async def async_switch_mode(self):
-        print("Async Switch_mode is called.")  # Debug
-        self.stop()  # Stop the timer when switching modes
+        print("Async Switch_mode is called.")
+        self.stop()
         if self.work_mode:
-            # Work time has ended
             self.remaining_time = self.break_time
-            self.work_mode = False  # 作業モードから休憩モードへ切り替え
+            self.work_mode = False
 
-            # Get work activities from the database
             activities = self.db_handler.get_activities(self.session_id, self.pomodoro_id)
-
-            # 作業セッションが終わったので、新しいポモドーロIDを生成
             self.pomodoro_id += 1
-            # Create a message for the AI
+
             messages = [
                 {"role": "system", "content": "チャットAIです。会話します。"},
                 {"role": "user", "content": f"私は以下の作業を行いました：{activities}"}
             ]
 
-            # Get a comment from the AI
             ai_comment = await self.text_generator.generate_message(messages)
-            self.last_ai_comment = ai_comment  # Save ai_comment here
-
-            # Call the work callback with the AI comment
+            self.last_ai_comment = ai_comment
             self.work_callback(ai_comment)
         else:
-            # Break time has ended
             self.remaining_time = self.work_time
-            self.work_mode = True  # 休憩モードから作業モードへ切り替え
+            self.work_mode = True
 
-            # Create a message for the AI
             messages = [
                 {"role": "system", "content": "チャットAIです。会話します。"},
                 {"role": "user", "content": "休憩時間が終わりました"}
             ]
 
-            # Get a comment from the AI
             ai_comment = await self.text_generator.generate_message(messages)
-            self.last_ai_comment = ai_comment  # Save ai_comment here
-
-            # Call the break callback with the AI comment
+            self.last_ai_comment = ai_comment
             self.break_callback(ai_comment)
 
-        self.update_ui_callback()  # UIを更新
+        self.update_ui_callback()
 
     def switch_mode(self):
         asyncio.run(self.async_switch_mode())
 
     def get_window_name(self):
-        # アクティブウィンドウの取得
         window = gw.getActiveWindow()
 
-        # ウィンドウが見つからなかった場合のエラーハンドリング
-        if window == None:
+        if window is None:
             return "No Active Window"
         else:
             return window.title
 
     async def estimate_activity_genre(self, window_name):
-        # Check the database first
         activity_genre = self.db_handler.get_activity_genre_by_window_name(window_name)
-        
-        # If the genre is found in the database, return it without asking the AI
+
         if activity_genre:
             return activity_genre
 
-        # Otherwise, ask the AI
         messages = [
             {"role": "system", "content": "あなたはユーザーの操作していたウィンドウ名から、作業ジャンルを一言で表す仕事を行います"},
             {"role": "user", "content": f"右にお送りするウィンドウ名から、作業ジャンルを一言で表してください {window_name}"}
@@ -217,22 +189,19 @@ class PomodoroTimer:
                 messages=messages,
                 temperature=0
             )
-            print(response)  # レスポンスをログ出力
-            # Store the response in the database for future reference
+            print(response)
             self.db_handler.add_activity_genre(window_name, response["choices"][0]["message"]["content"])
             return response["choices"][0]["message"]["content"]
         except Exception as e:
             print(f"Error in estimate_activity_genre: {e}")
             return None
 
-# Main_windowから移動
 import json
 from plyer import notification
 
 class TimerController:
-    def __init__(self,main_window):
+    def __init__(self, main_window):
         self.main_window = main_window
-        # Config インスタンスを作成して設定を読み込む
         config = Config()
 
         self.work_time = int(config.get("work_time")) * 60
@@ -242,107 +211,71 @@ class TimerController:
         self.is_work_session = True
         self.session_count = 1
         self.timer_paused = False
-        update_ui_callback = self.update_ui
-        self.timer_paused_lock = threading.Lock()  # Add this line to initialize the lock
-
-
-        db_handler = DBHandler()  # DBHandler インスタンスの作成
-        last_session_id = db_handler.get_last_session_id()  # 最後のセッション ID を取得
-        new_session_id = last_session_id + 1  # 新しいセッション ID
-
-        self.pomodoro_timer = PomodoroTimer(timer_controller=self, session_id=new_session_id, work_time=self.work_time, break_time=self.short_break_time,
-                                            work_callback=self.work_callback, break_callback=self.break_callback, update_ui_callback=self.update_ui)
-        self.main_window = main_window  # MainWindowのインスタンスを保持
-
-    def start_work(self):
-        print("start_workメソッド呼び出し")
-        self.is_work_session = True
-        self.pomodoro_timer.start()  # Start the timer when the user presses the button
-
-    def start_rest(self):
-        print("start_restメソッド呼び出し")
-        self.is_work_session = False
-        self.pomodoro_timer.start()  # Start the timer when the user presses the button
-        self.pomodoro_timer.timer.start()
-
-
-    def get_session_count(self):
-        return self.session_count
-
-    def start_session(self):
-        self.pomodoro_timer.db_handler.start_session()
-
-    def end_session(self, ai_comment):
-        self.db_handler.end_session(ai_comment)
-    
-    def work_callback(self, ai_comment):
-        print("Work callback is called.")
-        print(f"AI Comment: {ai_comment}")
-        # titleの最大文字数は64
-        # messageの最大文字数は256
-        notification.notify(
-            title='さぎょおわ',
-            message=ai_comment,
-            app_name='PomodoroApp',
-            timeout=10
-        )
-
-    def break_callback(self, ai_comment):
-        print("Break callback is called.")
-        print(f"AI Comment: {ai_comment}")
-        notification.notify(
-            title='きゅけおわ',
-            message=ai_comment,
-            app_name='PomodoroApp',
-            timeout=10
-        )
+        self.timer_paused_lock = threading.Lock()  # <- この行を追加
+        self.update_ui_callback = self.update_ui
+        self.pomodoro_timer = None
+        self.db_handler = DBHandler()
+        self.session_id = self.db_handler.create_session()
 
     def start_timer(self):
-        self.start_session()  # Start a new session in the database
-        self.pomodoro_timer.stop()
-        self.pomodoro_timer.start()
-        # メモ、ここのstop~startの意味がよくわからない。
-
-        self.cancel_timer = False  # タイマーのキャンセルフラグをリセット
-
-        # タイマーの時間をセッションに応じて設定
-        if self.is_work_session:
-            self.timer_seconds = self.work_time
+        if self.pomodoro_timer is None:
+            self.pomodoro_timer = PomodoroTimer(self, self.session_id, self.work_time, self.short_break_time, self.work_callback, self.break_callback, self.update_ui_callback)
+            self.pomodoro_timer.start()
         else:
-            if self.session_count % 4 == 0:
-                self.timer_seconds = self.long_break_time
-            else:
-                self.timer_seconds = self.short_break_time
+            print("Timer is already running.")
 
     def pause_timer(self):
-        print("paused_timer")
-        self.pomodoro_timer.pause_timer()  # Make sure this line is present
-
-    def end_timer(self):
-        ai_comment = self.pomodoro_timer.last_ai_comment
-        self.end_session(ai_comment)  # End the session in the database
-        self.is_work_session = not self.is_work_session
-        if not self.is_work_session:
-            self.session_count += 1
-        self.update_ui()  # session_countの更新後にUIを更新するように変更
-
-    def update_timer(self):
-        if self.pomodoro_timer.remaining_time > 0:
-            if self.pomodoro_timer.timer_paused:
-                print("MainWindow's timer is paused.")  # Debug
-                return
-            print("timercontrollerクラスの残り時間"+str(self.pomodoro_timer.remaining_time)+"""\n
-            """)
+        if self.pomodoro_timer is not None:
+            self.pomodoro_timer.pause_timer()
         else:
-            if self.is_work_session:
-                self.main_window.notify_work_end()
-            else:
-                self.main_window.notify_rest_end()
+            print("No timer to pause.")
+
+    def stop_timer(self):
+        if self.pomodoro_timer is not None:
+            self.pomodoro_timer.stop()
+            self.pomodoro_timer = None
+        else:
+            print("No timer to stop.")
+
+    def work_callback(self, ai_comment):
+        notification_title = "作業が終了しました"
+        notification_message = ai_comment
+        notification.notify(title=notification_title, message=notification_message)
+
+        if self.session_count < 4:
+            self.pomodoro_timer = PomodoroTimer(self, self.session_id, self.work_time, self.short_break_time, self.work_callback, self.break_callback, self.update_ui_callback)
+        else:
+            self.pomodoro_timer = PomodoroTimer(self, self.session_id, self.work_time, self.long_break_time, self.work_callback, self.break_callback, self.update_ui_callback)
+            self.session_count = 0
+
+        self.session_count += 1
+        self.is_work_session = False
+        self.update_ui()
+        self.pomodoro_timer.start()
+
+    def break_callback(self, ai_comment):
+        notification_title = "休憩が終了しました"
+        notification_message = ai_comment
+        notification.notify(title=notification_title, message=notification_message)
+
+        self.pomodoro_timer = PomodoroTimer(self, self.session_id, self.work_time, self.short_break_time, self.work_callback, self.break_callback, self.update_ui_callback)
+        self.is_work_session = True
+        self.update_ui()
+        self.pomodoro_timer.start()
 
     def update_ui(self):
-        # MainWindowのis_work_sessionをPomodoroTimerのwork_modeに同期
-        self.main_window.is_work_session = self.pomodoro_timer.work_mode
-        self.main_window.update_ui()
+        if self.pomodoro_timer is not None:
+            remaining_time = self.pomodoro_timer.remaining_time
+            minutes, seconds = divmod(remaining_time, 60)
+            time_str = f"{minutes:02d}:{seconds:02d}"
 
-        # プログレスバーの色を更新
-        self.main_window.update_progress_bar(self.pomodoro_timer.remaining_time)
+            if self.is_work_session:
+                status = "作業中"
+            else:
+                status = "休憩中"
+
+            self.main_window.update_timer_display(time_str, status)
+            self.main_window.update_ai_comment(self.pomodoro_timer.last_ai_comment)
+        else:
+            self.main_window.update_timer_display("25:00", "作業中")
+            self.main_window.update_ai_comment(None)

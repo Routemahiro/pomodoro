@@ -38,6 +38,13 @@ class DBHandler:
             self.connection.commit()
         except sqlite3.Error as e:
             print(f"Error adding activity genre: {e}")
+
+    def create_session(self):
+        with self.connection:
+            c = self.connection.cursor()
+            c.execute("INSERT INTO PomodoroSession (start_time) VALUES (?)", (datetime.now(),))
+            session_id = c.lastrowid
+        return session_id
         
     def add_window_activity(self, pomodoro_id, session_id, time, window_name, activity_genre=None):
         cursor = self.connection.cursor()
