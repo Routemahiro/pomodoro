@@ -46,3 +46,80 @@ AIの問い合わせは時間がかかる可能性があるため、別のスレ
 
 【怪しそうな内容】
 async_swtich_mode（作業状態の切り替えを行う関数）の後に、WindowActivityへの書き込みが発生している？
+
+
+
+
+
+
+
+
+
+main.py
+
+
+
+utils
+  - config.json
+  - config.py
+  - text_generator.py
+  - work_prososer.py
+
+view
+  - download_window.py
+  - end_question_window.py
+  - end_window.py
+  img
+    download
+      - button_1.png
+      - button_2.png
+      - entry_1.png
+      - entry_10.png
+      - entry_2.png
+      - entry_3.png
+      - entry_4.png
+      - entry_5.png
+      - entry_6.png
+      - entry_7.png
+      - entry_8.png
+      - entry_9.png
+    end
+      - close.png
+      - image_1.png
+    end_question
+      - button_1.png
+      - button_2.png
+    main
+      - button_1.png
+      - button_2.png
+      - button_3.png
+      - button_4.png
+      - button_4_dark.png
+      - button_5.png
+      - button_6.png
+      - rest_button.png
+      - work_button.png
+    setting
+      - button_1.png
+      - button_2.png
+      - entry_1.png
+      - entry_2.png
+      - entry_3.png
+      - image_1.png
+    setting_save
+      - image_1.png
+  - main_window.py
+  - settings_saved_window.py
+  - settings_window.py
+
+controller
+  - sample_timecount.py
+  - timer_controller.py
+  - window_controller.py
+
+model
+  database
+    - mikage_timer.db
+  - database.py
+  - pomodoro_session.py
+  - window_activity.py

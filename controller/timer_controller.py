@@ -263,6 +263,8 @@ class TimerController:
         print("start_restメソッド呼び出し")
         self.is_work_session = False
         self.pomodoro_timer.start()  # Start the timer when the user presses the button
+        self.pomodoro_timer.timer.start()
+
 
     def get_session_count(self):
         return self.session_count
